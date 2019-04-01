@@ -1,0 +1,53 @@
+{
+  "name": "t-ractor",
+  "private": true,
+  "description": "t-ractor for project everyday life poetry.",
+  "version": "0.1.0",
+  "author": "Arsenije Savic <arsenijesavic@me.com>",
+  "dependencies": {
+    "@rebass/grid": "^6.0.0",
+    "@tensorflow/tfjs": "^1.0.3",
+    "axios": "^0.18.0",
+    "firebase": "^5.9.2",
+    "gatsby": "^2.3.4",
+    "gatsby-image": "^2.0.35",
+    "gatsby-plugin-manifest": "^2.0.26",
+    "gatsby-plugin-offline": "^2.0.25",
+    "gatsby-plugin-react-helmet": "^3.0.11",
+    "gatsby-plugin-sharp": "^2.0.32",
+    "gatsby-plugin-styled-components": "^3.0.7",
+    "gatsby-source-filesystem": "^2.0.28",
+    "gatsby-transformer-sharp": "^2.1.17",
+    "prop-types": "^15.7.2",
+    "react": "^16.8.6",
+    "react-dom": "^16.8.6",
+    "react-helmet": "^5.2.0",
+    "react-modal": "^3.8.1",
+    "react-spring": "^8.0.18",
+    "react-transition-group": "^2.7.1",
+    "styled-components": "^4.2.0",
+    "styled-tools": "^1.7.1",
+    "swearjar": "^0.2.0"
+  },
+  "keywords": [
+    "bot"
+  ],
+  "license": "MIT",
+  "scripts": {
+    "build": "gatsby build",
+    "develop": "gatsby develop",
+    "start": "npm run develop",
+    "format": "prettier --write \"src/**/*.js\"",
+    "test": "echo \"Write tests! -> https://gatsby.app/unit-testing\""
+  },
+  "devDependencies": {
+    "prettier": "^1.16.4"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/arsenijesavic/t-ractor"
+  },
+  "bugs": {
+    "url": "https://github.com/arsenijesavic/t-ractor/issues"
+  }
+}
