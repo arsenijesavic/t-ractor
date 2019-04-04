@@ -9,8 +9,8 @@
     "@tensorflow/tfjs": "^1.0.3",
     "axios": "^0.18.0",
     "firebase": "^5.9.2",
-    "gatsby": "^2.3.4",
-    "gatsby-image": "^2.0.35",
+    "gatsby": "^2.3.12",
+    "gatsby-image": "^2.0.37",
     "gatsby-plugin-manifest": "^2.0.26",
     "gatsby-plugin-offline": "^2.0.25",
     "gatsby-plugin-react-helmet": "^3.0.11",
@@ -23,11 +23,12 @@
     "react-dom": "^16.8.6",
     "react-helmet": "^5.2.0",
     "react-modal": "^3.8.1",
-    "react-spring": "^8.0.18",
-    "react-transition-group": "^2.7.1",
+    "react-spring": "^8.0.19",
+    "react-transition-group": "^2.8.0",
     "styled-components": "^4.2.0",
     "styled-tools": "^1.7.1",
-    "swearjar": "^0.2.0"
+    "swearjar": "^0.2.0",
+    "three": "^0.103.0"
   },
   "keywords": [
     "bot"

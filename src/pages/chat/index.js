@@ -3,7 +3,12 @@ import React, { Component } from 'react'
 import Layout from '../../components/layout'
 import { Flex, Box } from '@rebass/grid'
 import { Button, Modal } from '../../components'
-import { Life, Messages, TextInput, TypingIndicator } from './components'
+import {
+  Life,
+  Messages,
+  TextInput,
+  TypingIndicator,
+} from '../../components/pages/chat'
 
 import * as ml5 from '../../module/ml5'
 import database from '../../module/firebase'
@@ -17,6 +22,7 @@ class IndexPage extends Component {
     length: 100,
     temperature: 0.5,
     state: 'LOADING',
+    isBotWriting: false,
     config: {
       ...this.props.location.state,
     },
@@ -36,15 +42,15 @@ class IndexPage extends Component {
     })
   }
 
-  gameOver = async () => {
+  gameOver = () => {
     const { messages } = this.state
     const text = messages.reduce((acc, msg) => msg.text + acc, '')
-    const mood = await getEmotions({ text })
+    //const mood = await getEmotions({ text })
 
     this.setState({
       state: 'GAME_OVER',
       text,
-      mood,
+      //mood,
     })
   }
 
@@ -57,7 +63,8 @@ class IndexPage extends Component {
       ...data,
     }
 
-    this.setState(prevState => ({
+    await this.setState(prevState => ({
+      state: message.user === 'bot' ? 'HUMAN' : 'BOT',
       mood,
       messages: [
         ...(prevState.messages ? prevState.messages : []),
@@ -92,8 +99,6 @@ class IndexPage extends Component {
   }
 
   createAnswer = txt => {
-    this.setState({ isBotWriting: true })
-
     const data = {
       seed: `${txt}.`,
       temperature: this.state.temperature,
@@ -101,8 +106,6 @@ class IndexPage extends Component {
     }
 
     this.lstm.generate(data, async (err, result) => {
-      this.setState({ isBotWriting: false })
-
       const index = result.sample.lastIndexOf('.')
       const text = `${result.sample.slice(0, index)}.`
 
@@ -116,7 +119,7 @@ class IndexPage extends Component {
   }
 
   render() {
-    const { messages, state, mood, isBotWriting } = this.state
+    const { messages, state, mood, config } = this.state
 
     return (
       <Layout title="Home">
@@ -124,13 +127,17 @@ class IndexPage extends Component {
           <Box width={getWidth(8)}>
             <Flex style={{ height: '100vh' }} flexDirection="column">
               <Box>
-                {/* <Life item={messages && messages[messages.length - 1]} /> */}
+                <Life
+                  duration={config.timer * 1000}
+                  active={state === 'HUMAN'}
+                  onDone={this.gameOver}
+                />
               </Box>
               <Box flex="1" style={{ height: '100%' }}>
                 <Messages data={messages} />
               </Box>
               <Box>
-                <TypingIndicator isTyping={isBotWriting} />
+                <TypingIndicator isTyping={state === 'BOT'} />
               </Box>
               <Box>
                 <TextInput onSend={this.handleSend} />
