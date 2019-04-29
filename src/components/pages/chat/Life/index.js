@@ -1,6 +1,6 @@
-import React, { useState, useEffect } from 'react'
+import React from 'react'
 import styled from 'styled-components'
-import { Spring, useSpring, useTransition, animated } from 'react-spring'
+import { useSpring, animated } from 'react-spring'
 
 export default ({
   config = { tension: 125, friction: 20, precision: 0.1 },

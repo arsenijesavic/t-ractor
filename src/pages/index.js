@@ -5,7 +5,7 @@ import { Flex, Box } from '@rebass/grid'
 import Layout from '../components/layout'
 import { Button, Input, Modal, Select } from '../components'
 
-import { getPoems } from '../module/firebase'
+//import { getPoems } from '../module/firebase'
 import getWidth from '../utils/getWidth'
 import dec2bin from '../utils/dec2bin'
 
@@ -13,8 +13,8 @@ class IndexPage extends Component {
   state = {}
 
   async componentDidMount() {
-    const poems = await getPoems()
-    this.setState({ poems })
+    //const poems = await getPoems()
+    // this.setState({ poems })
   }
 
   render() {

@@ -11,11 +11,10 @@ import {
 } from '../../components/pages/chat'
 
 import * as ml5 from '../../module/ml5'
-import database from '../../module/firebase'
+//import database from '../../module/firebase'
 
 import getWidth from '../../utils/getWidth'
 import getEmotions from '../../utils/getEmotions'
-import swearjar from 'swearjar'
 
 class IndexPage extends Component {
   state = {
@@ -30,7 +29,7 @@ class IndexPage extends Component {
 
   componentDidMount() {
     this.lstm = ml5.charRNN('/models/data/', () => this.gameStart())
-    this.db = database.ref(`chats/${new Date().getTime()}`)
+    //this.db = database.ref(`chats/${new Date().getTime()}`)
   }
 
   gameStart = () => {
@@ -73,7 +72,7 @@ class IndexPage extends Component {
     }))
 
     try {
-      await this.db.push().set(message)
+      //await this.db.push().set(message)
     } catch (error) {
       console.error(error)
     }
@@ -81,7 +80,7 @@ class IndexPage extends Component {
 
   createMessage = value => {
     const text = `${value.toLowerCase()}`
-    const isSwear = swearjar.profane(text)
+    const isSwear = false //  swearjar.profane(text)
     if (isSwear) {
       this.gameOver()
       return
