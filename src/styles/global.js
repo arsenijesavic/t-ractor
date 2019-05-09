@@ -115,4 +115,12 @@ export default createGlobalStyle`
     border: none;
     outline: none;
   }
+
+  pre {
+    font: 5px/5px monospace;
+    display: block;
+    font-family: monospace;
+    white-space: pre;
+    margin: 0em 0px;
+  }
 `
