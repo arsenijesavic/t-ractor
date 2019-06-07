@@ -23,6 +23,7 @@ const Layout = ({ children }) => (
             href="https://fonts.googleapis.com/css?family=IBM+Plex+Mono:400,500,700"
             rel="stylesheet"
           />
+          <script src="https://cdnjs.cloudflare.com/ajax/libs/p5.js/0.8.0/p5.js" />
         </Helmet>
 
         <GlobalStyle />

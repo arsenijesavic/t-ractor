@@ -89,10 +89,10 @@ function calcImg(pic) {
 
       //var x = pic.getImageData(j, i, 1, 1).data
       var v = Math.round((1 - x[0] / 255.0) * 5)
-      var index = Math.floor(Math.random() * options[v].length)
+      //var index = Math.floor(Math.random() * options[v].length)
 
       var chr = options[v][0]
-      if (chr == ' ') chr = '&nbsp;'
+      if (chr === ' ') chr = '&nbsp;'
       if (chr === '<') chr = '&lt;'
       if (chr === '>') chr = '&gt;'
       //if (chr === '"') chr = '&quot;'
