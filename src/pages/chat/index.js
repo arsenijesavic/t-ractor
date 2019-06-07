@@ -12,8 +12,8 @@ import {
 
 import * as ml5 from '../../module/ml5'
 //import database from '../../module/firebase'
-import P5Wrapper from 'react-p5-wrapper'
-import sketch from './sketch'
+//import P5Wrapper from 'react-p5-wrapper'
+//import sketch from './sketch'
 
 import getWidth from '../../utils/getWidth'
 import getEmotions from '../../utils/getEmotions'
@@ -167,9 +167,7 @@ class IndexPage extends Component {
                     ))}
                 </ul>
               </Box>
-              <Box>
-                <P5Wrapper sketch={sketch} />
-              </Box>
+              <Box></Box>
               <Box>
                 <Button onClick={this.gameOver}>End poem</Button>
               </Box>
