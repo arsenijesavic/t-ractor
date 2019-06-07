@@ -7,6 +7,102 @@ import drawMultilineText from 'canvas-multiline-text'
 
 const width = 595
 const height = 842
+const alphaEncode = {
+  a: '▲',
+  b: '⧗',
+  c: '◖',
+  d: '◗',
+  e: '≡',
+  f: '▚',
+  g: '◔',
+  h: '✚',
+  i: '┇',
+  j: '▟',
+  k: '❮',
+  l: '▙',
+  m: '▉',
+  n: '▋',
+  o: '●',
+  p: '▐',
+  q: '▍',
+  r: '⬣',
+  s: '▓',
+  t: '┿',
+  u: '⋓',
+  v: '▾',
+  w: '▾▾',
+  x: '✖',
+  y: '⧫',
+  z: '⬘',
+}
+
+function calcImg(pic) {
+  const options = [
+    ' ',
+    ' ',
+    '.',
+    '@-',
+    '#:',
+    '+_~',
+    '"',
+    '*|',
+    '!l',
+    '+=',
+    '.',
+    '<L',
+    '\\i',
+    '/^',
+    '1?',
+    'Jv',
+    'r',
+    '()cx',
+    '7}',
+    'sz',
+    '3u',
+    '2Ckty{',
+    'jn',
+    '4FVY',
+    '5P[]af',
+    'qw',
+    'Sde',
+    'Eo',
+    'NOZ',
+    '9HXgh',
+    'GTU',
+    '$AIm',
+    'QW',
+    'KM',
+    '%8',
+    '#06@',
+    'bp',
+    'D',
+    '&',
+    'R',
+    '_',
+  ]
+
+  var res = '<pre>'
+  for (var i = 0; i < 595 / 4; i++) {
+    var line = ''
+    for (var j = 0; j < 842 / 4; j++) {
+      var x = pic.getImageData(2 + Math.round(j * 5.714), 5 + i * 12, 1, 1).data
+
+      //var x = pic.getImageData(j, i, 1, 1).data
+      var v = Math.round((1 - x[0] / 255.0) * 5)
+      var index = Math.floor(Math.random() * options[v].length)
+
+      var chr = options[v][0]
+      if (chr == ' ') chr = '&nbsp;'
+      if (chr === '<') chr = '&lt;'
+      if (chr === '>') chr = '&gt;'
+      //if (chr === '"') chr = '&quot;'
+      line += chr
+    }
+    res += line + '<br>'
+  }
+  res += '</pre>'
+  return res
+}
 
 class ToolsPage extends Component {
   state = {
@@ -34,19 +130,24 @@ class ToolsPage extends Component {
     var link = document.createElement('a')
     link.download = 'my-image.png'
     link.href = image
-    link.click()
+    //link.click()
   }
 
   random = () => {
     return this.text.current.value
       .split(' ')
       .map(w => {
-        if (Math.random() < this.amount.current.value)
+        if (w === '\n') return w
+        else if (Math.random() < 0.1)
           return w
             .split('')
-            .map(x => (x === '\n' ? '\n' : '▇'))
+            .map(x => {
+              const char = x.charAt(0)
+              const r = alphaEncode[char] ? alphaEncode[char] : x
+              return x === '\n' ? '\n' : r
+            })
             .join('')
-        else return w
+        else return '◽'
       })
       .join(' ')
   }
@@ -75,15 +176,19 @@ class ToolsPage extends Component {
         width: width - 20,
         height: height - 20,
       },
-      font: 'Merriweather',
+      font: 'IBM Plex Mono',
       verbose: true,
       lineHeight: 1.4,
       minFontSize: 12,
     })
+
+    const html = calcImg(offscreenctx)
+    this.setState({ html })
+    //  ctx.transferFromImageBitmap(offscreen.transferToImageBitmap())
   }
 
   render() {
-    const { text } = this.state
+    const { text, html } = this.state
 
     return (
       <Layout on>
@@ -98,6 +203,10 @@ class ToolsPage extends Component {
             <input ref={this.text} type="textarea" />
             <button onClick={this.generate}>Generate</button>
             <button onClick={this.stop}>STOP</button>
+          </Box>
+
+          <Box width={1}>
+            <div dangerouslySetInnerHTML={{ __html: html }} />
           </Box>
 
           <Box width={1 / 2} px={4}>

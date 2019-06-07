@@ -4,6 +4,7 @@ module.exports = {
     description: `t-ractor for project everyday life poetry.`,
     author: `Arsenije Savic`,
   },
+
   plugins: [
     `gatsby-plugin-styled-components`,
     `gatsby-plugin-react-helmet`,

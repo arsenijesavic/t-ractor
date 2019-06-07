@@ -12,6 +12,8 @@ import {
 
 import * as ml5 from '../../module/ml5'
 //import database from '../../module/firebase'
+import P5Wrapper from 'react-p5-wrapper'
+import sketch from './sketch'
 
 import getWidth from '../../utils/getWidth'
 import getEmotions from '../../utils/getEmotions'
@@ -55,6 +57,7 @@ class IndexPage extends Component {
 
   addMessage = async data => {
     const mood = await getEmotions({ text: data.text })
+    console.log('MOODY', mood)
 
     const message = {
       id: Math.floor(Math.random() * 1000),
@@ -150,7 +153,7 @@ class IndexPage extends Component {
               <Box flex="1">
                 <ul style={{ margin: '0', padding: '0' }}>
                   {mood &&
-                    mood.emotions.map((e, i) => (
+                    Object.keys(mood).map((e, i) => (
                       <li
                         key={i}
                         style={{
@@ -159,10 +162,13 @@ class IndexPage extends Component {
                           listStyle: 'none',
                         }}
                       >
-                        {e.dimension.replace('1D', '').toUpperCase()}:{e.score}
+                        {e}:{mood[e]}
                       </li>
                     ))}
                 </ul>
+              </Box>
+              <Box>
+                <P5Wrapper sketch={sketch} />
               </Box>
               <Box>
                 <Button onClick={this.gameOver}>End poem</Button>
