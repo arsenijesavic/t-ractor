@@ -6,9 +6,6 @@ import Layout from '../../components/layout'
 import drawMultilineText from 'canvas-multiline-text'
 import database, { getViz } from '../../module/firebase'
 
-import html2canvas from 'html2canvas'
-import jsPDF from 'jspdf'
-
 import domtoimage from 'dom-to-image'
 
 const width = 595
