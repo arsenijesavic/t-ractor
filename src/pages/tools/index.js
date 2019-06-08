@@ -4,6 +4,7 @@ import { Flex, Box } from '@rebass/grid'
 import Layout from '../../components/layout'
 
 import drawMultilineText from 'canvas-multiline-text'
+import database, { getViz } from '../../module/firebase'
 
 const width = 595
 const height = 842
@@ -82,9 +83,10 @@ function calcImg(pic) {
   ]
 
   var res = '<pre>'
-  for (var i = 0; i < 595 / 4; i++) {
+
+  for (var i = 0; i < Math.floor(595 / 8) - 4; i++) {
     var line = ''
-    for (var j = 0; j < 842 / 4; j++) {
+    for (var j = 0; j < Math.floor(842 / 8) - 2; j++) {
       var x = pic.getImageData(2 + Math.round(j * 5.714), 5 + i * 12, 1, 1).data
 
       //var x = pic.getImageData(j, i, 1, 1).data
@@ -117,12 +119,23 @@ class ToolsPage extends Component {
     this.canvas = React.createRef()
   }
 
+  async componentDidMount() {
+    const data = await getViz()
+    console.log(data)
+    this.setState({ data })
+  }
+
   generate = () => {
     this.interval = setInterval(this.change, this.time.current.value)
   }
 
   stop = () => {
     clearInterval(this.interval)
+    this.db = database.ref(`viz/${new Date().getTime()}`)
+    this.db.push().set({
+      poem: this.text.current.value,
+      html: this.state.html,
+    })
 
     var image = this.canvas.current
       .toDataURL('image/png', 1.0)
@@ -188,7 +201,7 @@ class ToolsPage extends Component {
   }
 
   render() {
-    const { text, html } = this.state
+    const { data, text, html } = this.state
 
     return (
       <Layout on>
@@ -197,23 +210,46 @@ class ToolsPage extends Component {
             <h1>Tools</h1>
           </Box>
 
-          <Box>
+          <Box p={2}>
             <input ref={this.time} type="range" min="0" max="300" step="10" />
             <input ref={this.amount} type="range" min="0" max="1" step="0.1" />
-            <input ref={this.text} type="textarea" />
-            <button onClick={this.generate}>Generate</button>
-            <button onClick={this.stop}>STOP</button>
+            <textarea ref={this.text} />
+            <Flex>
+              <Box width={1 / 2} p={2}>
+                <button onClick={this.generate}>Generate</button>
+              </Box>
+              <Box width={1 / 2} p={2}>
+                <button onClick={this.stop}>STOP</button>
+              </Box>
+            </Flex>
           </Box>
 
-          <Box width={1}>
-            <div dangerouslySetInnerHTML={{ __html: html }} />
+          <Box width={1} p={2}>
+            <div
+              style={{ border: '1px solid #000' }}
+              dangerouslySetInnerHTML={{ __html: html }}
+            />
+          </Box>
+
+          <Box>
+            {data &&
+              Object.keys(data).map((x, i) => {
+                const obj = data[x][0]
+                return (
+                  <Flex>
+                    <Box width={1 / 2} key={i} p={2}>
+                      <p>{obj.poem}</p>
+                    </Box>
+                    <Box width={1 / 2} key={i} p={2}>
+                      <div dangerouslySetInnerHTML={{ __html: obj.html }} />
+                    </Box>
+                  </Flex>
+                )
+              })}
           </Box>
 
           <Box width={1 / 2} px={4}>
-            <canvas ref={this.canvas} />
-          </Box>
-          <Box width={1 / 2} px={4}>
-            <p style={{ width, height }}>{text}</p>
+            <canvas style={{ visibility: 'hidden' }} ref={this.canvas} />
           </Box>
         </Flex>
       </Layout>

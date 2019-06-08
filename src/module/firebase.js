@@ -30,10 +30,21 @@ const getPoems = () =>
     })
   })
 
+const getViz = () =>
+  new Promise((resolve, reject) => {
+    database.ref('viz').once('value', r => {
+      const data = r.val()
+      if (data) {
+        const chats = parseChat(data)
+        resolve(chats)
+      }
+    })
+  })
+
 const saveMessage = message => {
   const chat = database.ref(`chats/${new Date().getTime()}`)
   chat.push().set(message)
 }
 
 export default database
-export { getPoems }
+export { getPoems, getViz }

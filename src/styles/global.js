@@ -111,13 +111,17 @@ export default createGlobalStyle`
   }
 
   button {
+    padding: 1.5em;
+    background: blue;
+    color: #fff;
+    font-weight: 900;
     cursor: pointer;
     border: none;
     outline: none;
   }
 
   pre {
-    font: 5px/5px monospace;
+    font: 8px/8px monospace;
     display: block;
     font-family: monospace;
     white-space: pre;
