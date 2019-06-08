@@ -140,20 +140,20 @@ class ToolsPage extends Component {
 
   stop = () => {
     clearInterval(this.interval)
-    //this.db = database.ref(`viz/${new Date().getTime()}`)
-    // this.db.push().set({
-    //   poem: this.text.current.value,
-    //   html: this.state.html,
-    // })
+    this.db = database.ref(`viz/${new Date().getTime()}`)
+    this.db.push().set({
+      poem: this.text.current.value,
+      html: this.state.html,
+    })
 
-    var node = document.getElementById('poem')
+    const node = document.getElementById('poem')
+
     function filter(node) {
       return node.tagName !== 'i'
     }
 
     domtoimage.toSvg(node, { filter: filter }).then(function(dataUrl) {
-      /* do something */
-      var link = document.createElement('a')
+      const link = document.createElement('a')
       link.download = 'my-image-name.svg'
       link.href = dataUrl
       link.click()
