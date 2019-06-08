@@ -6,8 +6,17 @@ import Layout from '../../components/layout'
 import drawMultilineText from 'canvas-multiline-text'
 import database, { getViz } from '../../module/firebase'
 
+import html2canvas from 'html2canvas'
+import jsPDF from 'jspdf'
+
+import domtoimage from 'dom-to-image'
+
 const width = 595
 const height = 842
+
+const w = Math.floor(595 / 8) - 4
+const h = Math.floor(842 / 8) - 2
+
 const alphaEncode = {
   a: '▲',
   b: '⧗',
@@ -84,9 +93,9 @@ function calcImg(pic) {
 
   var res = '<pre>'
 
-  for (var i = 0; i < Math.floor(595 / 8) - 4; i++) {
+  for (var i = 0; i < w; i++) {
     var line = ''
-    for (var j = 0; j < Math.floor(842 / 8) - 2; j++) {
+    for (var j = 0; j < h; j++) {
       var x = pic.getImageData(2 + Math.round(j * 5.714), 5 + i * 12, 1, 1).data
 
       //var x = pic.getImageData(j, i, 1, 1).data
@@ -131,10 +140,23 @@ class ToolsPage extends Component {
 
   stop = () => {
     clearInterval(this.interval)
-    this.db = database.ref(`viz/${new Date().getTime()}`)
-    this.db.push().set({
-      poem: this.text.current.value,
-      html: this.state.html,
+    //this.db = database.ref(`viz/${new Date().getTime()}`)
+    // this.db.push().set({
+    //   poem: this.text.current.value,
+    //   html: this.state.html,
+    // })
+
+    var node = document.getElementById('poem')
+    function filter(node) {
+      return node.tagName !== 'i'
+    }
+
+    domtoimage.toSvg(node, { filter: filter }).then(function(dataUrl) {
+      /* do something */
+      var link = document.createElement('a')
+      link.download = 'my-image-name.svg'
+      link.href = dataUrl
+      link.click()
     })
 
     var image = this.canvas.current
@@ -226,7 +248,12 @@ class ToolsPage extends Component {
 
           <Box width={1} p={2}>
             <div
-              style={{ border: '1px solid #000' }}
+              id="poem"
+              style={{
+                width,
+                height,
+                border: '1px solid #000',
+              }}
               dangerouslySetInnerHTML={{ __html: html }}
             />
           </Box>
