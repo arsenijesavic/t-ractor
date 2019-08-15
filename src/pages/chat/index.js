@@ -1,28 +1,28 @@
-import React, { Component } from 'react'
+import React, { Component } from "react"
 
-import Layout from '../../components/layout'
-import { Flex, Box } from '@rebass/grid'
-import { Button, Modal } from '../../components'
+import Layout from "../../components/layout"
+import { Flex, Box } from "@rebass/grid"
+import { Button, Modal } from "../../components"
 import {
   Life,
   Messages,
   TextInput,
   TypingIndicator,
-} from '../../components/pages/chat'
+} from "../../components/pages/chat"
 
-import * as ml5 from '../../module/ml5'
+import * as ml5 from "../../module/ml5"
 //import database from '../../module/firebase'
-import P5Wrapper from 'react-p5-wrapper'
-import sketch from './sketch'
+// import P5Wrapper from 'react-p5-wrapper'
+// import sketch from './sketch'
 
-import getWidth from '../../utils/getWidth'
-import getEmotions from '../../utils/getEmotions'
+import getWidth from "../../utils/getWidth"
+import getEmotions from "../../utils/getEmotions"
 
 class IndexPage extends Component {
   state = {
     length: 100,
     temperature: 0.5,
-    state: 'LOADING',
+    state: "LOADING",
     isBotWriting: false,
     config: {
       ...this.props.location.state,
@@ -30,7 +30,7 @@ class IndexPage extends Component {
   }
 
   async componentDidMount() {
-    this.lstm = ml5.charRNN('/models/data/', () => this.gameStart())
+    this.lstm = ml5.charRNN("/models/data/", () => this.gameStart())
     //this.db = database.ref(`chats/${new Date().getTime()}`)
   }
 
@@ -38,18 +38,18 @@ class IndexPage extends Component {
     this.setState({
       messages: [],
       mood: null,
-      txt: '',
-      state: 'READY',
+      txt: "",
+      state: "READY",
     })
   }
 
   gameOver = () => {
     const { messages } = this.state
-    const text = messages.reduce((acc, msg) => msg.text + acc, '')
+    const text = messages.reduce((acc, msg) => msg.text + acc, "")
     //const mood = await getEmotions({ text })
 
     this.setState({
-      state: 'GAME_OVER',
+      state: "GAME_OVER",
       text,
       //mood,
     })
@@ -57,7 +57,7 @@ class IndexPage extends Component {
 
   addMessage = async data => {
     const mood = await getEmotions({ text: data.text }).then(
-      res => res.data.document_tone.tones
+      res => res.data.document_tone.tones,
     )
 
     console.log(mood)
@@ -68,7 +68,7 @@ class IndexPage extends Component {
     }
 
     await this.setState(prevState => ({
-      state: message.user === 'bot' ? 'HUMAN' : 'BOT',
+      state: message.user === "bot" ? "HUMAN" : "BOT",
       mood,
       messages: [
         ...(prevState.messages ? prevState.messages : []),
@@ -94,7 +94,7 @@ class IndexPage extends Component {
     const { user } = this.props.location.state
 
     this.addMessage({
-      user: 'human',
+      user: "human",
       username: `${user} t.ractor`,
       text,
     })
@@ -110,10 +110,10 @@ class IndexPage extends Component {
     }
 
     this.lstm.generate(data, async (err, result) => {
-      const index = result.sample.lastIndexOf('.')
+      const index = result.sample.lastIndexOf(".")
       const text = `${result.sample.slice(0, index)}.`
 
-      this.addMessage({ user: 'bot', text })
+      this.addMessage({ user: "bot", text })
     })
   }
 
@@ -129,19 +129,19 @@ class IndexPage extends Component {
       <Layout title="Home">
         <Flex flexWrap="wrap">
           <Box width={getWidth(8)}>
-            <Flex style={{ height: '100vh' }} flexDirection="column">
+            <Flex style={{ height: "100vh" }} flexDirection="column">
               <Box>
                 <Life
                   duration={config.timer * 1000}
-                  active={state === 'HUMAN'}
+                  active={state === "HUMAN"}
                   onDone={this.gameOver}
                 />
               </Box>
-              <Box flex="1" style={{ height: '100%' }}>
+              <Box flex="1" style={{ height: "100%" }}>
                 <Messages data={messages} />
               </Box>
               <Box>
-                <TypingIndicator isTyping={state === 'BOT'} />
+                <TypingIndicator isTyping={state === "BOT"} />
               </Box>
               <Box>
                 <TextInput onSend={this.handleSend} />
@@ -152,16 +152,16 @@ class IndexPage extends Component {
           <Box width={getWidth(4)}>
             <h3>Mood</h3>
             <Flex flexDirection="column">
-              <Box flex="1" style={{ height: '400px' }}>
-                <ul style={{ margin: '0', padding: '0' }}>
+              <Box flex="1" style={{ height: "400px" }}>
+                <ul style={{ margin: "0", padding: "0" }}>
                   {mood &&
                     mood.map((x, i) => (
                       <li
                         key={i}
                         style={{
-                          margin: '1em 0',
-                          padding: '0',
-                          listStyle: 'none',
+                          margin: "1em 0",
+                          padding: "0",
+                          listStyle: "none",
                         }}
                       >
                         {x.tone_name} : {x.score}
@@ -169,9 +169,7 @@ class IndexPage extends Component {
                     ))}
                 </ul>
               </Box>
-              <Box>
-                <P5Wrapper sketch={sketch}></P5Wrapper>
-              </Box>
+              <Box>{/* <P5Wrapper sketch={sketch}></P5Wrapper> */}</Box>
               <Box>
                 <Button onClick={this.gameOver}>End poem</Button>
               </Box>
@@ -179,10 +177,10 @@ class IndexPage extends Component {
           </Box>
         </Flex>
 
-        <Modal isOpen={state === 'GAME_OVER'}>
-          <div style={{ background: 'white', padding: '2em' }}>
+        <Modal isOpen={state === "GAME_OVER"}>
+          <div style={{ background: "white", padding: "2em" }}>
             <h1>Poem Over</h1>
-            <div style={{ padding: '2em' }}>
+            <div style={{ padding: "2em" }}>
               {messages && messages.map((v, i) => <p key={i}>{v.text}</p>)}
             </div>
             <button onClick={this.gameStart}>Create new poem</button>
