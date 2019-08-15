@@ -35,17 +35,21 @@ const Message = styled.li`
   padding: 1em;
   margin: 1em;
   list-style: none;
-  border-bottom: 2px solid #dac0b5;
-  color: #fffdf5;
-
+  border-radius: 20px;
+  box-shadow: 0 0.063em 0.313em 0 rgba(0, 0, 0, 0.07),
+    0 0.438em 1.063em 0 rgba(0, 0, 0, 0.1);
   ${switchProp('user', {
     bot: css`
+      color: white;
       float: left;
-      background-color: #ff5442;
+      background-color: black;
+      border-bottom: 2px solid white;
     `,
     human: css`
+    color: bloack;
       float: right;
-      background-color: #1fc2bc;
+      background-color: white;
+      bloack;
     `,
   })}
 `

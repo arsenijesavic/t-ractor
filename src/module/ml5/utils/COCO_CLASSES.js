@@ -85,4 +85,4 @@ export default [
   'teddy bear',
   'hair drier',
   'toothbrush',
-];
+]

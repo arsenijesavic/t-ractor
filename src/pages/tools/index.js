@@ -4,10 +4,17 @@ import { Flex, Box } from '@rebass/grid'
 import Layout from '../../components/layout'
 
 import drawMultilineText from 'canvas-multiline-text'
-import database, { getViz } from '../../module/firebase'
+import { getViz } from '../../module/firebase'
 
-import domtoimage from 'dom-to-image'
+import styled from 'styled-components'
 
+const PoemWrap = styled(Flex)`
+  height: 842px;
+  @media print {
+    height: 842px;
+    page-break-before: always;
+  }
+`
 const width = 595
 const height = 842
 
@@ -137,32 +144,11 @@ class ToolsPage extends Component {
 
   stop = () => {
     clearInterval(this.interval)
-    this.db = database.ref(`viz/${new Date().getTime()}`)
-    this.db.push().set({
-      poem: this.text.current.value,
-      html: this.state.html,
-    })
-
-    const node = document.getElementById('poem')
-
-    function filter(node) {
-      return node.tagName !== 'i'
-    }
-
-    domtoimage.toSvg(node, { filter: filter }).then(function(dataUrl) {
-      const link = document.createElement('a')
-      link.download = 'my-image-name.svg'
-      link.href = dataUrl
-      link.click()
-    })
-
-    var image = this.canvas.current
-      .toDataURL('image/png', 1.0)
-      .replace('image/png', 'image/octet-stream')
-    var link = document.createElement('a')
-    link.download = 'my-image.png'
-    link.href = image
-    //link.click()
+    // this.db = database.ref(`viz/${new Date().getTime()}`)
+    // this.db.push().set({
+    //   poem: this.text.current.value,
+    //   html: this.state.html,
+    // })
   }
 
   random = () => {
@@ -220,12 +206,12 @@ class ToolsPage extends Component {
   }
 
   render() {
-    const { data, text, html } = this.state
+    const { data } = this.state
 
     return (
       <Layout on>
         <Flex flexWrap="wrap" flexDirection="column">
-          <Box width={1} p={2} style={{ textAlign: 'center' }}>
+          {/* <Box width={1} p={2} style={{ textAlign: 'center' }}>
             <h1>Tools</h1>
           </Box>
 
@@ -253,21 +239,26 @@ class ToolsPage extends Component {
               }}
               dangerouslySetInnerHTML={{ __html: html }}
             />
-          </Box>
+          </Box> */}
 
           <Box>
             {data &&
               Object.keys(data).map((x, i) => {
                 const obj = data[x][0]
                 return (
-                  <Flex>
-                    <Box width={1 / 2} key={i} p={2}>
+                  <PoemWrap flexWrap="wrap">
+                    <Box width={1} key={i} p={2}>
                       <p>{obj.poem}</p>
                     </Box>
-                    <Box width={1 / 2} key={i} p={2}>
+                    <Box
+                      style={{ border: '1px soid #000' }}
+                      width={1}
+                      key={i}
+                      p={2}
+                    >
                       <div dangerouslySetInnerHTML={{ __html: obj.html }} />
                     </Box>
-                  </Flex>
+                  </PoemWrap>
                 )
               })}
           </Box>

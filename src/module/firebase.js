@@ -47,4 +47,4 @@ const saveMessage = message => {
 }
 
 export default database
-export { getPoems, getViz }
+export { getPoems, getViz, saveMessage }

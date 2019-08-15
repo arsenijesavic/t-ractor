@@ -28,7 +28,7 @@ const Layout = ({ children }) => (
 
         <GlobalStyle />
         {/* <Header siteTitle={data.site.siteMetadata.title} /> */}
-        <div style={{ background: '#FAF2DF' }}>{children}</div>
+        <div style={{ background: 'white' }}>{children}</div>
       </>
     )}
   />

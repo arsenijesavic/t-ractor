@@ -12,8 +12,8 @@ import {
 
 import * as ml5 from '../../module/ml5'
 //import database from '../../module/firebase'
-//import P5Wrapper from 'react-p5-wrapper'
-//import sketch from './sketch'
+import P5Wrapper from 'react-p5-wrapper'
+import sketch from './sketch'
 
 import getWidth from '../../utils/getWidth'
 import getEmotions from '../../utils/getEmotions'
@@ -29,7 +29,7 @@ class IndexPage extends Component {
     },
   }
 
-  componentDidMount() {
+  async componentDidMount() {
     this.lstm = ml5.charRNN('/models/data/', () => this.gameStart())
     //this.db = database.ref(`chats/${new Date().getTime()}`)
   }
@@ -56,9 +56,11 @@ class IndexPage extends Component {
   }
 
   addMessage = async data => {
-    const mood = await getEmotions({ text: data.text })
-    console.log('MOODY', mood)
+    const mood = await getEmotions({ text: data.text }).then(
+      res => res.data.document_tone.tones
+    )
 
+    console.log(mood)
     const message = {
       id: Math.floor(Math.random() * 1000),
       mood,
@@ -150,10 +152,10 @@ class IndexPage extends Component {
           <Box width={getWidth(4)}>
             <h3>Mood</h3>
             <Flex flexDirection="column">
-              <Box flex="1">
+              <Box flex="1" style={{ height: '400px' }}>
                 <ul style={{ margin: '0', padding: '0' }}>
                   {mood &&
-                    Object.keys(mood).map((e, i) => (
+                    mood.map((x, i) => (
                       <li
                         key={i}
                         style={{
@@ -162,12 +164,14 @@ class IndexPage extends Component {
                           listStyle: 'none',
                         }}
                       >
-                        {e}:{mood[e]}
+                        {x.tone_name} : {x.score}
                       </li>
                     ))}
                 </ul>
               </Box>
-              <Box></Box>
+              <Box>
+                <P5Wrapper sketch={sketch}></P5Wrapper>
+              </Box>
               <Box>
                 <Button onClick={this.gameOver}>End poem</Button>
               </Box>

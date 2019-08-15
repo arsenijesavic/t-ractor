@@ -4,9 +4,45 @@ import theme from './theme'
 export default createGlobalStyle`
   * {
     box-sizing: border-box;
-    font-smoothing: antialiased;
     outline: none !important;
+    -webkit-print-color-adjust: exact !important;
   }
+
+  pre
+{
+border: 1px solid #999;
+page-break-inside: avoid;
+display: block;
+word-break: break-all;
+word-wrap: break-word;
+/*white-space: pre;
+white-space: pre-wrap;*/
+background-color: red;
+border: 1px solid #ccc;
+border: 1px solid rgba(0, 0, 0, 0.15);
+}
+
+pre code
+{
+    padding: 0;
+    color: inherit;
+    white-space: pre;
+    white-space: pre-wrap;
+    background-color: red;
+    border: 0;
+}
+
+@media print {
+	pre {
+		overflow-x: auto;
+		white-space: pre-wrap;
+		white-space: -moz-pre-wrap !important;
+		white-space: -pre-wrap;
+		white-space: -o-pre-wrap;
+		word-wrap: break-word;
+		background: #fff;
+	}
+}
 
   html {
     font-size: 14px;
@@ -18,7 +54,7 @@ export default createGlobalStyle`
     font-family: 'IBM Plex Mono', monospace;
     font-size: 1em;
     line-height: 1.45;
-    color: #0a1f44;
+    color: black;
   }
 
   h1, h2, h3, h4, h5, h6 {
@@ -75,6 +111,7 @@ export default createGlobalStyle`
     font-family: 'IBM Plex Mono', monospace;
     font-size: 14px;
     color: ${theme.colors.text.light};
+    color: black;
   }
 
   input, textarea {
@@ -87,14 +124,17 @@ export default createGlobalStyle`
     width: 100%;
     font-family: inherit;
     font-size: inherit;
-    color: inherit;
+    color: black;
   }
 
   input[type="date"]{
     height: 44px;
   }
 
-  input{}
+  input{
+    border: 2px solid black;
+    box-shadow: 0 1px 5px rgba(0, 0, 0, 0.15);
+  }
 
   input:focus, textarea:focus {
   }
@@ -121,7 +161,7 @@ export default createGlobalStyle`
   }
 
   pre {
-    font: 8px/8px monospace;
+    font: 16px/16px monospace;
     display: block;
     font-family: monospace;
     white-space: pre;

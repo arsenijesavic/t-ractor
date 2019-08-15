@@ -1,6 +1,5 @@
 import React from 'react'
 import styled from 'styled-components'
-import Transition from 'react-transition-group/Transition'
 import RCModal from 'react-modal'
 
 const duration = 300
@@ -32,11 +31,6 @@ const defaultStyle = {
   },
 }
 
-const transitionStyles = {
-  entering: { opacity: 0 },
-  entered: { opacity: 1 },
-}
-
 if (typeof window !== 'undefined') {
   RCModal.setAppElement('body')
 }
@@ -59,27 +53,22 @@ const Title = styled.h3`
 `
 
 const Modal = ({ title, style, isOpen, onClose, children }) => (
-  <Transition in={isOpen} timeout={duration}>
-    {state => (
-      <RCModal
-        contentLabel={title}
-        isOpen={isOpen}
-        onRequestClose={onClose}
-        style={{
-          ...defaultStyle,
-          ...transitionStyles[state],
-          ...style,
-        }}
-      >
-        {title && (
-          <Header>
-            <Title>{title}</Title>
-          </Header>
-        )}
-        {children}
-      </RCModal>
+  <RCModal
+    contentLabel={title}
+    isOpen={isOpen}
+    onRequestClose={onClose}
+    style={{
+      ...defaultStyle,
+      ...style,
+    }}
+  >
+    {title && (
+      <Header>
+        <Title>{title}</Title>
+      </Header>
     )}
-  </Transition>
+    {children}
+  </RCModal>
 )
 
 export default Modal

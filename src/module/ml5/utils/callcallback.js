@@ -6,14 +6,14 @@
 export default function callCallback(promise, callback) {
   if (callback) {
     promise
-      .then((result) => {
-        callback(undefined, result);
-        return result;
+      .then(result => {
+        callback(undefined, result)
+        return result
       })
-      .catch((error) => {
-        callback(error);
-        return error;
-      });
+      .catch(error => {
+        callback(error)
+        return error
+      })
   }
-  return promise;
+  return promise
 }
