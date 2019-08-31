@@ -1,7 +1,7 @@
-import React, { useEffect, useRef } from 'react'
-import ReactDOM from 'react-dom'
-import styled, { css } from 'styled-components'
-import { switchProp } from 'styled-tools'
+import React, { useEffect, useRef } from "react"
+import ReactDOM from "react-dom"
+import styled, { css } from "styled-components"
+import { switchProp } from "styled-tools"
 
 export default ({ data = [] }) => {
   const selfRef = useRef(null)
@@ -16,12 +16,15 @@ export default ({ data = [] }) => {
   useEffect(resetScrollTop, [data.length])
 
   return (
-    <div ref={selfRef} style={{ height: '86vh', overflow: 'scroll' }}>
+    <div ref={selfRef} style={{ height: "85vh", overflow: "scroll" }}>
       {data &&
         data.map((message, i) => (
           <div key={i}>
-            <Message user={message.user}>
-              {message.user}:{message.text}
+            <Message actor={message.actor}>
+              <span style={{ textTransform: "uppercase" }}>
+                {message.user}:{" "}
+              </span>
+              {message.text}
             </Message>
           </div>
         ))}
@@ -38,7 +41,7 @@ const Message = styled.li`
   border-radius: 20px;
   box-shadow: 0 0.063em 0.313em 0 rgba(0, 0, 0, 0.07),
     0 0.438em 1.063em 0 rgba(0, 0, 0, 0.1);
-  ${switchProp('user', {
+  ${switchProp("actor", {
     bot: css`
       color: white;
       float: left;

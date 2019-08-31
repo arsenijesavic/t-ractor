@@ -1,5 +1,5 @@
-import { createGlobalStyle } from 'styled-components'
-import theme from './theme'
+import { createGlobalStyle } from "styled-components"
+import theme from "./theme"
 
 export default createGlobalStyle`
   * {
@@ -132,7 +132,8 @@ pre code
   }
 
   input{
-    border: 2px solid black;
+    /* border: 2px solid black; */
+    padding: 40px 16px;
     box-shadow: 0 1px 5px rgba(0, 0, 0, 0.15);
   }
 

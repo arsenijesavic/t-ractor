@@ -1,32 +1,37 @@
 import React, { Component } from "react"
-
 import Layout from "../../components/layout"
 import { Flex, Box } from "@rebass/grid"
 import { Button, Modal } from "../../components"
 import {
-  Life,
+  // Life,
   Messages,
   TextInput,
   TypingIndicator,
 } from "../../components/pages/chat"
+import Sound from "react-sound"
 
 import * as ml5 from "../../module/ml5"
 //import database from '../../module/firebase'
-// import P5Wrapper from 'react-p5-wrapper'
-// import sketch from './sketch'
+const P5Wrapper = () => <div />
+if (typeof window !== `undefined`) {
+  P5Wrapper = require("react-p5-wrapper")
+}
+
+// import P5Wrapper from "react-p5-wrapper"
+import sketch from "../../utils/sketch"
 
 import getWidth from "../../utils/getWidth"
 import getEmotions from "../../utils/getEmotions"
 
 class IndexPage extends Component {
   state = {
+    poemName: new Date().getTime(),
+    count: 0,
     length: 100,
     temperature: 0.5,
     state: "LOADING",
     isBotWriting: false,
-    config: {
-      ...this.props.location.state,
-    },
+    ...this.props.location.state,
   }
 
   async componentDidMount() {
@@ -43,24 +48,28 @@ class IndexPage extends Component {
     })
   }
 
-  gameOver = () => {
+  gameOver = async () => {
     const { messages } = this.state
     const text = messages.reduce((acc, msg) => msg.text + acc, "")
-    //const mood = await getEmotions({ text })
-
+    const mood = await getEmotions({ text }).then(
+      res => res.data.document_tone.tones,
+    )
     this.setState({
       state: "GAME_OVER",
       text,
-      //mood,
+      mood,
     })
   }
 
   addMessage = async data => {
+    const { count } = this.state
+    if (count + 1 === 30) {
+      this.gameOver()
+      return
+    }
     const mood = await getEmotions({ text: data.text }).then(
       res => res.data.document_tone.tones,
     )
-
-    console.log(mood)
     const message = {
       id: Math.floor(Math.random() * 1000),
       mood,
@@ -68,7 +77,8 @@ class IndexPage extends Component {
     }
 
     await this.setState(prevState => ({
-      state: message.user === "bot" ? "HUMAN" : "BOT",
+      state: message.actor === "bot" ? "HUMAN" : "BOT",
+      count: ++prevState.count,
       mood,
       messages: [
         ...(prevState.messages ? prevState.messages : []),
@@ -85,18 +95,19 @@ class IndexPage extends Component {
 
   createMessage = value => {
     const text = `${value.toLowerCase()}`
-    const isSwear = false //  swearjar.profane(text)
-    if (isSwear) {
-      this.gameOver()
-      return
-    }
+    // const isSwear = false //  swearjar.profane(text)
+    // if (isSwear) {
+    //   this.gameOver()
+    //   return
+    // }
 
-    const { user } = this.props.location.state
+    const { user } = this.state
 
     this.addMessage({
-      user: "human",
+      actor: "human",
+      user,
       username: `${user} t.ractor`,
-      text,
+      text: value,
     })
 
     return text
@@ -113,7 +124,7 @@ class IndexPage extends Component {
       const index = result.sample.lastIndexOf(".")
       const text = `${result.sample.slice(0, index)}.`
 
-      this.addMessage({ user: "bot", text })
+      this.addMessage({ user: "T.Ractor", actor: "bot", text, state: "HUMAN" })
     })
   }
 
@@ -123,7 +134,7 @@ class IndexPage extends Component {
   }
 
   render() {
-    const { messages, state, mood, config } = this.state
+    const { messages, state, mood, count, poemName, user } = this.state
 
     return (
       <Layout title="Home">
@@ -131,15 +142,16 @@ class IndexPage extends Component {
           <Box width={getWidth(8)}>
             <Flex style={{ height: "100vh" }} flexDirection="column">
               <Box>
-                <Life
+                {/* <Life
                   duration={config.timer * 1000}
                   active={state === "HUMAN"}
                   onDone={this.gameOver}
-                />
+                /> */}
               </Box>
               <Box flex="1" style={{ height: "100%" }}>
                 <Messages data={messages} />
               </Box>
+              <Box flex="1" style={{ height: "100%" }}></Box>
               <Box>
                 <TypingIndicator isTyping={state === "BOT"} />
               </Box>
@@ -150,6 +162,45 @@ class IndexPage extends Component {
           </Box>
 
           <Box width={getWidth(4)}>
+            {[
+              "01-anger-weak.mp3",
+              "02-anger-strong.mp3",
+              "03-fear-weak.mp3",
+              "04-fear-strong.mp3",
+              "06-sadness-strong.mp3",
+              "07-joy-weak.mp3",
+              "08-joy-strong.mp3",
+              "10-analytical-strong.mp3",
+              "11-confident-weak.mp3",
+              "12-confident-strong.mp3",
+              "13-tentative-weak.mp3",
+              "14-tentative-strong.mp3",
+            ].map(sound => (
+              <Sound
+                url={`/sounds/${sound}`}
+                playStatus={
+                  mood &&
+                  mood.find(x => x.tone_id.includes(sound.split("-")[1]))
+                    ? "PLAYING"
+                    : "STOPED"
+                }
+                loop={
+                  mood &&
+                  mood.find(x => x.tone_id.includes(sound.split("-")[1]))
+                    ? true
+                    : false
+                }
+                autoLoad={true}
+                // onLoading={this.handleSongLoading}
+                // onPlaying={this.handleSongPlaying}
+                // onFinishedPlaying={this.handleSongFinishedPlaying}
+              />
+            ))}
+            <Box>
+              <P5Wrapper mood={mood && mood} sketch={sketch}></P5Wrapper>
+            </Box>
+
+            <h3>Count {count}</h3>
             <h3>Mood</h3>
             <Flex flexDirection="column">
               <Box flex="1" style={{ height: "400px" }}>
@@ -169,7 +220,7 @@ class IndexPage extends Component {
                     ))}
                 </ul>
               </Box>
-              <Box>{/* <P5Wrapper sketch={sketch}></P5Wrapper> */}</Box>
+
               <Box>
                 <Button onClick={this.gameOver}>End poem</Button>
               </Box>
@@ -179,10 +230,18 @@ class IndexPage extends Component {
 
         <Modal isOpen={state === "GAME_OVER"}>
           <div style={{ background: "white", padding: "2em" }}>
-            <h1>Poem Over</h1>
-            <div style={{ padding: "2em" }}>
+            <h4>{poemName}</h4>
+            <h1> {user && user.toUpperCase()} T-Ractor</h1>
+            <Box>
+              <P5Wrapper
+                mood={mood && mood}
+                isOver={true}
+                sketch={sketch}
+              ></P5Wrapper>
+            </Box>
+            {/* <div style={{ padding: "2em" }}>
               {messages && messages.map((v, i) => <p key={i}>{v.text}</p>)}
-            </div>
+            </div> */}
             <button onClick={this.gameStart}>Create new poem</button>
           </div>
         </Modal>

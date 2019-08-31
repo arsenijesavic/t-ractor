@@ -1,8 +1,8 @@
-import React, { useRef } from 'react'
-import styled from 'styled-components'
-import { Box } from '@rebass/grid'
-import { Input } from '../../../../components'
-import key from '../../../../utils/key'
+import React, { useRef } from "react"
+import styled from "styled-components"
+import { Box } from "@rebass/grid"
+import { Input } from "../../../../components"
+import key from "../../../../utils/key"
 
 export default ({ onSend }) => {
   const selfRef = useRef(null)
@@ -10,7 +10,7 @@ export default ({ onSend }) => {
   const handleGenerate = () => {
     const value = selfRef.current.value
     if (value.length > 0) {
-      selfRef.current.value = ''
+      selfRef.current.value = ""
       onSend && onSend(value)
     }
   }
@@ -18,10 +18,10 @@ export default ({ onSend }) => {
   return (
     <Wrap>
       <Input
-        style={{ position: 'absolute', bottom: '0' }}
+        style={{ position: "absolute", bottom: "0", padding: "24px 16px" }}
         ref={selfRef}
         placeholder="Enter your text here"
-        onKeyDown={e => key(e, 'Enter', handleGenerate)}
+        onKeyDown={e => key(e, "Enter", handleGenerate)}
       />
     </Wrap>
   )

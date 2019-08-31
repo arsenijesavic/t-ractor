@@ -1,15 +1,15 @@
-import React from 'react'
+import React from "react"
 
-import styled from 'styled-components'
+import styled from "styled-components"
 
 const Wrap = styled.div`
   width: 100px;
-  height: 6px;
+  height: 12px;
   > span {
     padding: 0;
     margin: 0;
     margin-left: 5%;
-    background: red;
+    background: black;
     display: inline-block;
     width: 6px;
     height: 6px;
