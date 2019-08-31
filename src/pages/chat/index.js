@@ -12,7 +12,7 @@ import Sound from "react-sound"
 
 import * as ml5 from "../../module/ml5"
 //import database from '../../module/firebase'
-const P5Wrapper = () => <div />
+let P5Wrapper = () => <div />
 if (typeof window !== `undefined`) {
   P5Wrapper = require("react-p5-wrapper")
 }
