@@ -76,6 +76,10 @@ const styles = css`
     outline: none;
   }
 
+  textarea {
+    border: 1px solid black;
+  }
+
   ::-webkit-input-placeholder {
     font-family: inherit;
     font-size: inherit;

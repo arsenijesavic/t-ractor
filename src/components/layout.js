@@ -42,7 +42,7 @@ Layout.propTypes = {
   children: PropTypes.node.isRequired,
 }
 
-Layout.default = {
+Layout.defaultProps = {
   navigation: true,
 }
 export default Layout

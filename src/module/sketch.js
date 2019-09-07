@@ -84,7 +84,6 @@ export default function sketch(p) {
   }
 
   p.myCustomRedrawAccordingToNewPropsHandler = function(props) {
-    console.log(props)
     reset = props.reset
 
     if (props.mood !== null && props.mood && props.mood.length > 0) {

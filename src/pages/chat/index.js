@@ -30,7 +30,7 @@ const ChatPage = props => {
   const mood = data.mood
     ? data.mood
     : messages.length > 0 && messages[messages.length - 1].mood
-  console.log("GAME STATE:::", GAME_STATE)
+  // console.log("GAME STATE:::", GAME_STATE)
 
   return (
     <Layout title="home" navigation={false}>
@@ -79,16 +79,14 @@ const ChatPage = props => {
           </Button>
         </div>
       </Modal>
-      {typeof window !== "undefined" && (
-        <NewWindow title="viz">
-          <P5Wrapper
-            isOver={GAME_STATE === "GAME_OVER"}
-            reset={GAME_STATE === "GAME_INIT"}
-            mood={mood && mood}
-            sketch={sketch}
-          />
-        </NewWindow>
-      )}
+      <NewWindow title="viz">
+        <P5Wrapper
+          isOver={GAME_STATE === "GAME_OVER"}
+          reset={GAME_STATE === "GAME_INIT"}
+          mood={mood && mood}
+          sketch={sketch}
+        />
+      </NewWindow>
     </Layout>
   )
 }

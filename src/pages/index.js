@@ -20,6 +20,7 @@ const IndexPage = props => {
   }, [])
 
   if (loading) return null
+
   return (
     <Layout title="home">
       <Wrap>
