@@ -79,14 +79,16 @@ const ChatPage = props => {
           </Button>
         </div>
       </Modal>
-      <NewWindow title="viz">
-        <P5Wrapper
-          isOver={GAME_STATE === "GAME_OVER"}
-          reset={GAME_STATE === "GAME_INIT"}
-          mood={mood && mood}
-          sketch={sketch}
-        />
-      </NewWindow>
+      {typeof window !== "undefined" && (
+        <NewWindow title="viz">
+          <P5Wrapper
+            isOver={GAME_STATE === "GAME_OVER"}
+            reset={GAME_STATE === "GAME_INIT"}
+            mood={mood && mood}
+            sketch={sketch}
+          />
+        </NewWindow>
+      )}
     </Layout>
   )
 }
