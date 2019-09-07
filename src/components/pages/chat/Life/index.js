@@ -1,6 +1,6 @@
-import React from 'react'
-import styled from 'styled-components'
-import { useSpring, animated } from 'react-spring'
+import React from "react"
+import styled from "styled-components"
+import { useSpring, animated } from "react-spring"
 
 export default ({
   config = { tension: 125, friction: 20, precision: 0.1 },
@@ -13,14 +13,14 @@ export default ({
     key: Math.random(),
     reset: active,
     config: { duration },
-    from: { right: '0%' },
-    to: { right: '100%' },
+    from: { right: "0%" },
+    to: { right: "100%" },
     //onRest: () => onDone && onDone(),
   })
 
   return (
     <span>
-      <Progress key={item.id} opacity={active ? '1' : '0'} style={props} />
+      <Progress key={item.id} opacity={active ? "1" : "0"} style={props} />
     </span>
   )
 }

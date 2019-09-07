@@ -1,4 +1,4 @@
-const proxy = require('http-proxy-middleware')
+const proxy = require("http-proxy-middleware")
 
 module.exports = {
   siteMetadata: {
@@ -8,10 +8,6 @@ module.exports = {
   },
 
   plugins: [
-    `gatsby-plugin-styled-components`,
-    `gatsby-plugin-react-helmet`,
-    `gatsby-transformer-sharp`,
-    `gatsby-plugin-sharp`,
     {
       resolve: `gatsby-plugin-manifest`,
       options: {
@@ -21,20 +17,24 @@ module.exports = {
         background_color: `#663399`,
         theme_color: `#663399`,
         display: `minimal-ui`,
-        //icon: `src/images/gatsby-icon.png`, // This path is relative to the root of the site.
+        //icon: `src/images/gatsby-icon.png`
       },
     },
+    "gatsby-plugin-react-helmet",
+    "gatsby-plugin-sharp",
+    "gatsby-plugin-styled-components",
+    "gatsby-transformer-sharp",
   ],
 
   developMiddleware: app => {
     app.use(
-      '/.netlify/functions/',
+      "/.netlify/functions/",
       proxy({
-        target: 'http://localhost:9000',
+        target: "http://localhost:9000",
         pathRewrite: {
-          '/.netlify/functions/': '',
+          "/.netlify/functions/": "",
         },
-      })
+      }),
     )
   },
 }

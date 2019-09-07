@@ -12,14 +12,8 @@ import Sound from "react-sound"
 
 import * as ml5 from "../../module/ml5"
 //import database from '../../module/firebase'
-let P5Wrapper = () => <div />
-if (typeof window !== `undefined`) {
-  P5Wrapper = require("react-p5-wrapper")
-}
-
-// import P5Wrapper from "react-p5-wrapper"
+import P5Wrapper from "react-p5-wrapper"
 import sketch from "../../utils/sketch"
-
 import getWidth from "../../utils/getWidth"
 import getEmotions from "../../utils/getEmotions"
 

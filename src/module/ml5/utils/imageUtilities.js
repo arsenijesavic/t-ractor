@@ -3,12 +3,12 @@
 // This software is released under the MIT License.
 // https://opensource.org/licenses/MIT
 
-import * as tf from '@tensorflow/tfjs'
+import * as tf from "@tensorflow/tfjs"
 
 // Resize video elements
 const processVideo = (input, size, callback = () => {}) => {
   const videoInput = input
-  const element = document.createElement('video')
+  const element = document.createElement("video")
   videoInput.onplay = () => {
     const stream = videoInput.captureStream()
     element.srcObject = stream
@@ -26,10 +26,10 @@ const processVideo = (input, size, callback = () => {}) => {
 const array3DToImage = tensor => {
   const [imgWidth, imgHeight] = tensor.shape
   const data = tensor.dataSync()
-  const canvas = document.createElement('canvas')
+  const canvas = document.createElement("canvas")
   canvas.width = imgWidth
   canvas.height = imgHeight
-  const ctx = canvas.getContext('2d')
+  const ctx = canvas.getContext("2d")
   const imageData = ctx.getImageData(0, 0, canvas.width, canvas.height)
 
   for (let i = 0; i < imgWidth * imgHeight; i += 1) {
@@ -44,7 +44,7 @@ const array3DToImage = tensor => {
 
   // Create img HTML element from canvas
   const dataUrl = canvas.toDataURL()
-  const outputImg = document.createElement('img')
+  const outputImg = document.createElement("img")
   outputImg.src = dataUrl
   outputImg.style.width = imgWidth
   outputImg.style.height = imgHeight

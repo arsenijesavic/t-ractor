@@ -1,4 +1,4 @@
-import styled from 'styled-components'
+import styled from "styled-components"
 
 export default styled.input`
   padding: 2.2vh 1em;

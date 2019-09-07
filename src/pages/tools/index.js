@@ -1,12 +1,12 @@
-import React, { Component } from 'react'
+import React, { Component } from "react"
 
-import { Flex, Box } from '@rebass/grid'
-import Layout from '../../components/layout'
+import { Flex, Box } from "@rebass/grid"
+import Layout from "../../components/layout"
 
-import drawMultilineText from 'canvas-multiline-text'
-import { getViz } from '../../module/firebase'
+import drawMultilineText from "canvas-multiline-text"
+import { getViz } from "../../module/firebase"
 
-import styled from 'styled-components'
+import styled from "styled-components"
 
 const PoemWrap = styled(Flex)`
   height: 842px;
@@ -22,83 +22,83 @@ const w = Math.floor(595 / 8) - 4
 const h = Math.floor(842 / 8) - 2
 
 const alphaEncode = {
-  a: '▲',
-  b: '⧗',
-  c: '◖',
-  d: '◗',
-  e: '≡',
-  f: '▚',
-  g: '◔',
-  h: '✚',
-  i: '┇',
-  j: '▟',
-  k: '❮',
-  l: '▙',
-  m: '▉',
-  n: '▋',
-  o: '●',
-  p: '▐',
-  q: '▍',
-  r: '⬣',
-  s: '▓',
-  t: '┿',
-  u: '⋓',
-  v: '▾',
-  w: '▾▾',
-  x: '✖',
-  y: '⧫',
-  z: '⬘',
+  a: "▲",
+  b: "⧗",
+  c: "◖",
+  d: "◗",
+  e: "≡",
+  f: "▚",
+  g: "◔",
+  h: "✚",
+  i: "┇",
+  j: "▟",
+  k: "❮",
+  l: "▙",
+  m: "▉",
+  n: "▋",
+  o: "●",
+  p: "▐",
+  q: "▍",
+  r: "⬣",
+  s: "▓",
+  t: "┿",
+  u: "⋓",
+  v: "▾",
+  w: "▾▾",
+  x: "✖",
+  y: "⧫",
+  z: "⬘",
 }
 
 function calcImg(pic) {
   const options = [
-    ' ',
-    ' ',
-    '.',
-    '@-',
-    '#:',
-    '+_~',
+    " ",
+    " ",
+    ".",
+    "@-",
+    "#:",
+    "+_~",
     '"',
-    '*|',
-    '!l',
-    '+=',
-    '.',
-    '<L',
-    '\\i',
-    '/^',
-    '1?',
-    'Jv',
-    'r',
-    '()cx',
-    '7}',
-    'sz',
-    '3u',
-    '2Ckty{',
-    'jn',
-    '4FVY',
-    '5P[]af',
-    'qw',
-    'Sde',
-    'Eo',
-    'NOZ',
-    '9HXgh',
-    'GTU',
-    '$AIm',
-    'QW',
-    'KM',
-    '%8',
-    '#06@',
-    'bp',
-    'D',
-    '&',
-    'R',
-    '_',
+    "*|",
+    "!l",
+    "+=",
+    ".",
+    "<L",
+    "\\i",
+    "/^",
+    "1?",
+    "Jv",
+    "r",
+    "()cx",
+    "7}",
+    "sz",
+    "3u",
+    "2Ckty{",
+    "jn",
+    "4FVY",
+    "5P[]af",
+    "qw",
+    "Sde",
+    "Eo",
+    "NOZ",
+    "9HXgh",
+    "GTU",
+    "$AIm",
+    "QW",
+    "KM",
+    "%8",
+    "#06@",
+    "bp",
+    "D",
+    "&",
+    "R",
+    "_",
   ]
 
-  var res = '<pre>'
+  var res = "<pre>"
 
   for (var i = 0; i < w; i++) {
-    var line = ''
+    var line = ""
     for (var j = 0; j < h; j++) {
       var x = pic.getImageData(2 + Math.round(j * 5.714), 5 + i * 12, 1, 1).data
 
@@ -107,15 +107,15 @@ function calcImg(pic) {
       //var index = Math.floor(Math.random() * options[v].length)
 
       var chr = options[v][0]
-      if (chr === ' ') chr = '&nbsp;'
-      if (chr === '<') chr = '&lt;'
-      if (chr === '>') chr = '&gt;'
+      if (chr === " ") chr = "&nbsp;"
+      if (chr === "<") chr = "&lt;"
+      if (chr === ">") chr = "&gt;"
       //if (chr === '"') chr = '&quot;'
       line += chr
     }
-    res += line + '<br>'
+    res += line + "<br>"
   }
-  res += '</pre>'
+  res += "</pre>"
   return res
 }
 
@@ -153,21 +153,21 @@ class ToolsPage extends Component {
 
   random = () => {
     return this.text.current.value
-      .split(' ')
+      .split(" ")
       .map(w => {
-        if (w === '\n') return w
+        if (w === "\n") return w
         else if (Math.random() < 0.1)
           return w
-            .split('')
+            .split("")
             .map(x => {
               const char = x.charAt(0)
               const r = alphaEncode[char] ? alphaEncode[char] : x
-              return x === '\n' ? '\n' : r
+              return x === "\n" ? "\n" : r
             })
-            .join('')
-        else return '◽'
+            .join("")
+        else return "◽"
       })
-      .join(' ')
+      .join(" ")
   }
 
   change = () => {
@@ -178,11 +178,11 @@ class ToolsPage extends Component {
     this.canvas.current.style.width = width * 2
     this.canvas.current.style.height = height * 2
 
-    const offscreenctx = this.canvas.current.getContext('2d')
-    offscreenctx.fillStyle = '#fff'
+    const offscreenctx = this.canvas.current.getContext("2d")
+    offscreenctx.fillStyle = "#fff"
     offscreenctx.fillRect(0, 0, width * 2, height * 2)
-    offscreenctx.font = '16px IBM Plex Mono'
-    offscreenctx.fillStyle = '#000'
+    offscreenctx.font = "16px IBM Plex Mono"
+    offscreenctx.fillStyle = "#000"
 
     const str = this.random()
 
@@ -194,7 +194,7 @@ class ToolsPage extends Component {
         width: width - 20,
         height: height - 20,
       },
-      font: 'IBM Plex Mono',
+      font: "IBM Plex Mono",
       verbose: true,
       lineHeight: 1.4,
       minFontSize: 12,
@@ -251,7 +251,7 @@ class ToolsPage extends Component {
                       <p>{obj.poem}</p>
                     </Box>
                     <Box
-                      style={{ border: '1px soid #000' }}
+                      style={{ border: "1px soid #000" }}
                       width={1}
                       key={i}
                       p={2}
@@ -264,7 +264,7 @@ class ToolsPage extends Component {
           </Box>
 
           <Box width={1 / 2} px={4}>
-            <canvas style={{ visibility: 'hidden' }} ref={this.canvas} />
+            <canvas style={{ visibility: "hidden" }} ref={this.canvas} />
           </Box>
         </Flex>
       </Layout>

@@ -1,6 +1,6 @@
 /* eslint max-len: "off" */
 
-import * as tf from '@tensorflow/tfjs'
+import * as tf from "@tensorflow/tfjs"
 
 export default class CheckpointLoaderPix2pix {
   constructor(urlPath) {
@@ -16,16 +16,16 @@ export default class CheckpointLoaderPix2pix {
       }
 
       const xhr = new XMLHttpRequest()
-      xhr.open('GET', this.urlPath, true)
-      xhr.responseType = 'arraybuffer'
+      xhr.open("GET", this.urlPath, true)
+      xhr.responseType = "arraybuffer"
       xhr.onload = () => {
         if (xhr.status !== 200) {
-          reject(new Error('missing model'))
+          reject(new Error("missing model"))
           return
         }
         const buf = xhr.response
         if (!buf) {
-          reject(new Error('invalid arraybuffer'))
+          reject(new Error("invalid arraybuffer"))
           return
         }
 
@@ -39,7 +39,7 @@ export default class CheckpointLoaderPix2pix {
           offset += len
         }
 
-        const shapes = JSON.parse(new TextDecoder('utf8').decode(parts[0]))
+        const shapes = JSON.parse(new TextDecoder("utf8").decode(parts[0]))
         const index = new Float32Array(parts[1])
         const encoded = new Uint8Array(parts[2])
 
@@ -55,7 +55,7 @@ export default class CheckpointLoaderPix2pix {
           const { shape } = shapes[i]
           const size = shape.reduce((total, num) => total * num)
           const values = arr.slice(offset, offset + size)
-          const tfarr = tf.tensor1d(values, 'float32')
+          const tfarr = tf.tensor1d(values, "float32")
           weights[shapes[i].name] = tfarr.reshape(shape)
           offset += size
         }

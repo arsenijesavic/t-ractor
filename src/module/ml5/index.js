@@ -9,10 +9,10 @@
 A LSTM Generator: Run inference mode for a pre-trained LSTM.
 */
 
-import * as tf from '@tensorflow/tfjs'
-import sampleFromDistribution from './utils/sample'
-import CheckpointLoader from './utils/checkpointLoader'
-import callCallback from './utils/callcallback'
+import * as tf from "@tensorflow/tfjs"
+import sampleFromDistribution from "./utils/sample"
+import CheckpointLoader from "./utils/checkpointLoader"
+import callCallback from "./utils/callcallback"
 
 const regexCell = /cell_[0-9]|lstm_[0-9]/gi
 const regexWeights = /weights|weight|kernel|kernels|w/gi
@@ -30,7 +30,7 @@ class CharRNN {
     this.vocabSize = 0
     this.probabilities = []
     this.defaults = {
-      seed: 'a', // TODO: use no seed by default
+      seed: "a", // TODO: use no seed by default
       length: 20,
       temperature: 0.5,
       stateful: false,
@@ -99,7 +99,7 @@ class CharRNN {
           this.model[`Bias_${i}`],
           DATA,
           C,
-          H
+          H,
         )
       return cell
     }
@@ -145,7 +145,7 @@ class CharRNN {
           this.cells,
           embedded,
           this.state.c,
-          this.state.h
+          this.state.h,
         )
       } else {
         output = tf.multiRNNCell(this.cells, onehot, this.state.c, this.state.h)
@@ -157,7 +157,7 @@ class CharRNN {
       const outputH = this.state.h[1]
       const weightedResult = tf.matMul(
         outputH,
-        this.model.fullyConnectedWeights
+        this.model.fullyConnectedWeights,
       )
       const logits = tf.add(weightedResult, this.model.fullyConnectedBiases)
       const divided = tf.div(logits, tf.tensor(temperature))
@@ -174,10 +174,10 @@ class CharRNN {
       }
     }
 
-    let generated = ''
+    let generated = ""
     results.forEach(char => {
       const mapped = Object.keys(this.vocab).find(
-        key => this.vocab[key] === char
+        key => this.vocab[key] === char,
       )
       if (mapped) {
         generated += mapped
@@ -215,7 +215,7 @@ class CharRNN {
 
     const sample = sampleFromDistribution(probabilitiesNormalized)
     const result = Object.keys(this.vocab).find(
-      key => this.vocab[key] === sample
+      key => this.vocab[key] === sample,
     )
     this.probabilities = probabilitiesNormalized
     if (callback) {
@@ -253,7 +253,7 @@ class CharRNN {
           this.cells,
           embedded,
           this.state.c,
-          this.state.h
+          this.state.h,
         )
       } else {
         output = tf.multiRNNCell(this.cells, onehot, this.state.c, this.state.h)
@@ -268,7 +268,7 @@ class CharRNN {
   }
 }
 
-const charRNN = (modelPath = './', callback) => new CharRNN(modelPath, callback)
+const charRNN = (modelPath = "./", callback) => new CharRNN(modelPath, callback)
 
 export default charRNN
 

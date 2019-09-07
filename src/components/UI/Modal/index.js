@@ -1,38 +1,38 @@
-import React from 'react'
-import styled from 'styled-components'
-import RCModal from 'react-modal'
+import React from "react"
+import styled from "styled-components"
+import RCModal from "react-modal"
 
 const duration = 300
 
 const defaultStyle = {
   overlay: {
-    position: 'fixed',
+    position: "fixed",
     top: 0,
     left: 0,
     right: 0,
     bottom: 0,
-    backgroundColor: 'rgba(0, 0, 0, 0.85)',
-    zIndex: '9999',
-    overflow: 'auto',
+    backgroundColor: "rgba(0, 0, 0, 0.85)",
+    zIndex: "9999",
+    overflow: "auto",
   },
 
   content: {
-    top: '50%',
-    left: '50%',
-    right: 'auto',
-    bottom: 'auto',
-    transform: 'translate(-50%, -50%)',
-    border: 'none',
-    borderRadisu: '2px',
-    background: 'rbga(0,0,0,0.8)',
+    top: "50%",
+    left: "50%",
+    right: "auto",
+    bottom: "auto",
+    transform: "translate(-50%, -50%)",
+    border: "none",
+    borderRadisu: "2px",
+    background: "rbga(0,0,0,0.8)",
     //boxShadow: '0 15px 30px 0 rgba(0, 0, 0, 0.11)',
     transition: `all ${duration}ms ease-in-out`,
-    overflow: 'auto',
+    overflow: "auto",
   },
 }
 
-if (typeof window !== 'undefined') {
-  RCModal.setAppElement('body')
+if (typeof window !== "undefined") {
+  RCModal.setAppElement("body")
 }
 
 const Header = styled.header`

@@ -17,7 +17,7 @@ class Video {
       this.videoElt = video
     } else if (
       video !== null &&
-      typeof video === 'object' &&
+      typeof video === "object" &&
       video.elt instanceof HTMLVideoElement
     ) {
       // Handle p5.js video element
@@ -27,7 +27,7 @@ class Video {
 
   async loadVideo() {
     return new Promise(resolve => {
-      this.video = document.createElement('video')
+      this.video = document.createElement("video")
       const stream = this.videoElt.captureStream()
       this.video.srcObject = stream
       this.video.width = this.size

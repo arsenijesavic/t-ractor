@@ -5,21 +5,21 @@
 
 // Save a File
 const saveFile = (name, data) => {
-  const downloadElt = document.createElement('a')
+  const downloadElt = document.createElement("a")
   downloadElt.setAttribute(
-    'href',
-    `data:text/plain;charset=utf-8,${encodeURIComponent(data)}`
+    "href",
+    `data:text/plain;charset=utf-8,${encodeURIComponent(data)}`,
   )
-  downloadElt.setAttribute('download', name)
-  downloadElt.style.display = 'none'
+  downloadElt.setAttribute("download", name)
+  downloadElt.style.display = "none"
   document.body.appendChild(downloadElt)
   downloadElt.click()
   document.body.removeChild(downloadElt)
 }
 
 const saveBlob = async (data, name, type) => {
-  const link = document.createElement('a')
-  link.style.display = 'none'
+  const link = document.createElement("a")
+  link.style.display = "none"
   document.body.appendChild(link)
   const blob = new Blob([data], { type })
   link.href = URL.createObjectURL(blob)
@@ -37,7 +37,7 @@ const loadFile = async (path, callback) =>
     .catch(error => {
       callback(error)
       console.error(
-        `There has been a problem loading the file: ${error.message}`
+        `There has been a problem loading the file: ${error.message}`,
       )
       throw error
     })

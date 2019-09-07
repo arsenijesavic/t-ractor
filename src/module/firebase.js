@@ -1,17 +1,17 @@
-var firebase = require('firebase')
+var firebase = require("firebase")
 
 const config = {
-  apiKey: 'AIzaSyB5TGeYQ7turZYzBBNZRBEDg3wwkODtcVM',
-  authDomain: 't-ractor.firebaseapp.com',
-  databaseURL: 'https://t-ractor.firebaseio.com',
-  projectId: 't-ractor',
-  storageBucket: 't-ractor.appspot.com',
-  messagingSenderId: '431936540509',
+  apiKey: "AIzaSyB5TGeYQ7turZYzBBNZRBEDg3wwkODtcVM",
+  authDomain: "t-ractor.firebaseapp.com",
+  databaseURL: "https://t-ractor.firebaseio.com",
+  projectId: "t-ractor",
+  storageBucket: "t-ractor.appspot.com",
+  messagingSenderId: "431936540509",
 }
 
-if (typeof window !== 'undefined') firebase.initializeApp(config)
+if (typeof window !== "undefined") firebase.initializeApp(config)
 
-const database = typeof window !== 'undefined' ? firebase.database() : null
+const database = typeof window !== "undefined" ? firebase.database() : null
 
 const parseChat = data =>
   Object.keys(data).reduce((result, v) => {
@@ -21,7 +21,7 @@ const parseChat = data =>
 
 const getPoems = () =>
   new Promise((resolve, reject) => {
-    database.ref('chats').once('value', r => {
+    database.ref("chats").once("value", r => {
       const data = r.val()
       if (data) {
         const chats = parseChat(data)
@@ -32,7 +32,7 @@ const getPoems = () =>
 
 const getViz = () =>
   new Promise((resolve, reject) => {
-    database.ref('viz').once('value', r => {
+    database.ref("viz").once("value", r => {
       const data = r.val()
       if (data) {
         const chats = parseChat(data)
