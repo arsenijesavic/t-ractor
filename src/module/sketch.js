@@ -1,15 +1,15 @@
-const clearBackground = false
+let clearBackground = false
 // const DEBUG = true
 // const DEBUG_INIT = true
 // const DEBUG_LOGIC = true
 const splatters = []
 
-function nextGaussian() {
-  return p.random(1) * 2 - 1 + (p.random(1) * 2 - 1) + (p.random(1) * 2 - 1)
-}
-
 export default function sketch(p) {
   if (typeof window === undefined) return null
+
+  function nextGaussian() {
+    return p.random(1) * 2 - 1 + (p.random(1) * 2 - 1) + (p.random(1) * 2 - 1)
+  }
 
   const POS_DEV = 45
   const R_DEV = 15
@@ -72,12 +72,12 @@ export default function sketch(p) {
   }
 
   p.setup = function() {
-    //p.createCanvas(window.innerWidth, window.innerHeight)
-    p.createCanvas(500, 500)
+    p.createCanvas(window.innerWidth, window.innerHeight)
+    // p.createCanvas(500, 500)
     p.smooth()
     p.background(0)
     // baseColor = p.color(p.random(255), p.random(255), p.random(255), 125)
-    baseColor = p.color(255, 0, 0, 125)
+    // baseColor = p.color(255, 0, 0, 125)
   }
 
   p.myCustomRedrawAccordingToNewPropsHandler = function(props) {
@@ -111,16 +111,16 @@ export default function sketch(p) {
   }
 
   p.draw = function() {
-    if (clearBackground) p.background(0, 5)
+    // if (clearBackground) p.background(0, 5)
 
     for (let i = splatters.length - 1; i >= 0; i--) {
       const splatter = splatters[i]
       splatter.draw()
       splatter.update()
 
-      if (splatter.finished) {
-        splatters.splice(i, 1)
-      }
+      // if (splatter.finished) {
+      //   splatters.splice(i, 1)
+      // }
     }
 
     p.smooth()

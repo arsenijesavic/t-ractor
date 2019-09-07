@@ -128,6 +128,10 @@ const styles = css`
       background: #fff;
     }
   }
+
+  canvas {
+    visibility: visible !important;
+  }
 `
 
 export default createGlobalStyle`${styles}`

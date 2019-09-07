@@ -25,7 +25,6 @@ const Layout = ({ children, style, navigation }) => (
             href="https://fonts.googleapis.com/css?family=Space+Mono:400,700&display=swap"
             rel="stylesheet"
           />
-
           {typeof window !== "undefined" && (
             <script src="https://cdnjs.cloudflare.com/ajax/libs/p5.js/0.9.0/p5.js" />
           )}
