@@ -7,6 +7,14 @@ exports.onCreateWebpackConfig = ({ actions, stage }) => {
             test: /firebase/,
             use: ["null-loader"],
           },
+          {
+            test: /react-p5-wrapper/,
+            use: ["null-loader"],
+          },
+          {
+            test: /react-new-window/,
+            use: ["null-loader"],
+          },
         ],
       },
     })
