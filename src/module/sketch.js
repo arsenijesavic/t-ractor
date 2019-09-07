@@ -1,10 +1,3 @@
-let clearBackground = false
-let reset = false
-// const DEBUG = true
-// const DEBUG_INIT = true
-// const DEBUG_LOGIC = true
-let splatters = []
-
 export default function sketch(p) {
   if (typeof window === undefined) return null
 
@@ -22,6 +15,12 @@ export default function sketch(p) {
   const fadeSpeed = 0.3
   const shrinkSpeed = 0.1
 
+  // const DEBUG = true
+  // const DEBUG_INIT = true
+  // const DEBUG_LOGIC = true
+  let reset = false
+  let splatters = []
+
   function Splatter(base, x, y, r) {
     this.x = nextGaussian() * POS_DEV + x
     this.y = nextGaussian() * POS_DEV + y
@@ -32,6 +31,7 @@ export default function sketch(p) {
       nextGaussian() * COLOR_DEV + p.blue(base),
       nextGaussian() * COLOR_DEV + p.alpha(base),
     )
+    this.clearBackground = false
     this.finished = false
     this.direction = p.random(p.TWO_PI)
     this.velocity = nextGaussian() * VELOCITY_DEV + VELOCITY_MEAN
@@ -77,6 +77,7 @@ export default function sketch(p) {
     p.createCanvas(500, 500)
     p.pixelDensity(3)
     p.smooth()
+    p.noCursor()
     p.background(0)
     // baseColor = p.color(p.random(255), p.random(255), p.random(255), 125)
     // baseColor = p.color(255, 0, 0, 125)
@@ -87,7 +88,7 @@ export default function sketch(p) {
     reset = props.reset
 
     if (props.mood !== null && props.mood && props.mood.length > 0) {
-      clearBackground = false
+      this.clearBackground = false
       props.mood.forEach(emotion => {
         const emotionsMap = {
           anger: [233, 39, 39],
@@ -111,12 +112,12 @@ export default function sketch(p) {
         }
       })
     } else {
-      clearBackground = true
+      this.clearBackground = true
     }
   }
 
   p.draw = function() {
-    // if (clearBackground) p.background(0, 5)
+    // if (this.clearBackground) p.background(0, 5)
     if (reset) {
       splatters = []
       p.background(0)
@@ -131,19 +132,5 @@ export default function sketch(p) {
       //   splatters.splice(i, 1)
       // }
     }
-
-    p.smooth()
-    p.noCursor()
   }
-
-  //   void mousePressed()
-  // {
-  //   baseColor = color(random(255), random(255), random(255), 125);
-  // }
-
-  // void keyPressed()
-  // {
-  //    if (key == ' ')
-  //       clearBackground = !clearBackground;
-  // }
 }
