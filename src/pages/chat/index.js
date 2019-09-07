@@ -1,247 +1,265 @@
-import React, { Component } from "react"
+import React from "react"
+import { useMachine } from "@xstate/react"
+import { Machine, assign } from "xstate"
+import * as ml5 from "../../module/ml5"
+import getEmotions from "@utils/getEmotions"
+
+import styled from "styled-components"
 import Layout from "../../components/layout"
-import { Flex, Box } from "@rebass/grid"
-import { Button, Modal } from "../../components"
+import { Modal, Button } from "@components"
 import {
-  // Life,
+  Header,
   Messages,
   TextInput,
   TypingIndicator,
-} from "../../components/pages/chat"
-import Sound from "react-sound"
+} from "@components/pages/chat"
 
-import * as ml5 from "../../module/ml5"
-//import database from '../../module/firebase'
-import P5Wrapper from "react-p5-wrapper"
-import sketch from "../../utils/sketch"
-import getWidth from "../../utils/getWidth"
-import getEmotions from "../../utils/getEmotions"
+// import Sound from "react-sound"
+// import database from "../../module/firebase"
+// import P5Wrapper from "react-p5-wrapper"
+// import sketch from "../../utils/sketch"
 
-class IndexPage extends Component {
-  state = {
-    poemName: new Date().getTime(),
-    count: 0,
-    length: 100,
-    temperature: 0.5,
-    state: "LOADING",
-    isBotWriting: false,
-    ...this.props.location.state,
-  }
+const GAME_DURATION = 10 * 1000
 
-  async componentDidMount() {
-    this.lstm = ml5.charRNN("/models/data/", () => this.gameStart())
-    //this.db = database.ref(`chats/${new Date().getTime()}`)
-  }
+const ChatPage = props => {
+  const { state } = props.location && props.location
 
-  gameStart = () => {
-    this.setState({
-      messages: [],
-      mood: null,
-      txt: "",
-      state: "READY",
-    })
-  }
+  const [current, transition] = useMachine(gameMachine, gameStateActions(state))
+  const GAME_STATE = current.value
+  const data = current.context
+  const { messages, user } = data
+  // console.log("GAME STATE:::", GAME_STATE)
 
-  gameOver = async () => {
-    const { messages } = this.state
-    const text = messages.reduce((acc, msg) => msg.text + acc, "")
-    const mood = await getEmotions({ text }).then(
-      res => res.data.document_tone.tones,
-    )
-    this.setState({
-      state: "GAME_OVER",
-      text,
-      mood,
-    })
-  }
+  return (
+    <Layout title="home" navigation={false}>
+      <Wrap>
+        <Header
+          count={messages.length}
+          duration={GAME_DURATION}
+          active={GAME_STATE === "HUMAN"}
+          onTimeExpire={() => transition("GAME_OVER")}
+        />
+        <Messages data={messages} />
+        <TypingIndicator isTyping={GAME_STATE === "BOT"} />
+        <TextInput
+          focused={GAME_STATE === "HUMAN"}
+          disabled={GAME_STATE === "BOT"}
+          onSubmit={data => transition("NEXT", { data })}
+        />
+      </Wrap>
 
-  addMessage = async data => {
-    const { count } = this.state
-    if (count + 1 === 30) {
-      this.gameOver()
-      return
-    }
-    const mood = await getEmotions({ text: data.text }).then(
-      res => res.data.document_tone.tones,
-    )
-    const message = {
-      id: Math.floor(Math.random() * 1000),
-      mood,
-      ...data,
-    }
+      <Modal isOpen={GAME_STATE === "READY"}>
+        <div style={{ background: "white", padding: "2em" }}>
+          <div>
+            <p>The Game is played in a series of rounds.</p>
+            <p> During each round, players can do x, y or z.</p>
+          </div>
+          <Button onClick={data => transition("NEXT")}>START GAME</Button>
+        </div>
+      </Modal>
 
-    await this.setState(prevState => ({
-      state: message.actor === "bot" ? "HUMAN" : "BOT",
-      count: ++prevState.count,
-      mood,
-      messages: [
-        ...(prevState.messages ? prevState.messages : []),
-        { ...message },
-      ],
-    }))
+      <Modal isOpen={GAME_STATE === "GAME_OVER"}>
+           
+        <div
+          style={{
+            height: "100vh",
+            padding: "2em",
+            display: "flex",
+            flexDirection: "column",
+          }}
+        >
+          <h1>{user && user.toUpperCase()} T-Ractor</h1>
+          <div style={{ flex: "1 0 auto" }}>
+            {messages.length > 0 &&
+              messages.map((v, i) => <p key={i}>{v.text}</p>)}
+          </div>
+          <Button onClick={data => transition("START_GAME")}>
+            Create new poem
+          </Button>
+        </div>
+      </Modal>
+    </Layout>
+  )
+}
 
-    try {
-      //await this.db.push().set(message)
-    } catch (error) {
-      console.error(error)
-    }
-  }
+const gameMachine = Machine({
+  id: "game",
+  initial: "LOADING",
+  context: {
+    messages: [],
+  },
+  states: {
+    // LOADING: {
+    //   entry: "notifySuccess",
 
-  createMessage = value => {
-    const text = `${value.toLowerCase()}`
-    // const isSwear = false //  swearjar.profane(text)
-    // if (isSwear) {
-    //   this.gameOver()
-    //   return
-    // }
+    LOADING: {
+      invoke: {
+        src: "loadAssets",
+        onDone: {
+          target: "READY",
+          actions: assign((state, action) => ({
+            ...state,
+            ...action.data,
+          })),
+        },
 
-    const { user } = this.state
+        onError: {
+          target: "LOADING",
+          // actions: assign({
+          //   error: (_, event) => event.data,
+          // }),
+        },
+      },
+    },
 
-    this.addMessage({
-      actor: "human",
-      user,
-      username: `${user} t.ractor`,
-      text: value,
-    })
+    READY: {
+      on: { NEXT: "GAME_INIT" },
+    },
 
-    return text
-  }
+    GAME_INIT: {
+      invoke: {
+        src: "initGame",
+        onDone: {
+          target: "HUMAN",
+          actions: assign((state, action) => ({
+            ...state,
+            ...action.data,
+          })),
+        },
+        // onError: {
+        //   target: "BOT",
+        //   actions: assign({
+        //     error: (_, event) => event.data,
+        //   }),
+        // },
+      },
+    },
 
-  createAnswer = txt => {
-    const data = {
-      seed: `${txt}.`,
-      temperature: this.state.temperature,
-      length: this.state.length,
-    }
+    HUMAN: {
+      exit: "createMessage",
+      on: {
+        NEXT: "ANALYSE_MOOD",
+        GAME_OVER: "GAME_OVER",
+      },
+    },
 
-    this.lstm.generate(data, async (err, result) => {
+    GAME_OVER: {
+      on: {
+        START_GAME: "GAME_INIT",
+      },
+    },
+
+    ANALYSE_MOOD: {
+      invoke: {
+        src: "analyseMood",
+        onDone: {
+          target: "BOT",
+          actions: assign((state, action) => ({
+            ...state,
+            ...action.data,
+          })),
+        },
+        // onError: {
+        //   target: "BOT",
+        //   actions: assign({
+        //     error: (_, event) => event.data,
+        //   }),
+        // },
+      },
+    },
+
+    BOT: {
+      invoke: {
+        src: "createAnswer",
+        onDone: {
+          target: "HUMAN",
+          actions: assign((state, action) => ({
+            ...state,
+            ...action.data,
+          })),
+        },
+        // onError: {
+        //   target: "LOADING",
+        //   actions: assign({
+        //     error: (_, event) => event.data,
+        //   }),
+        // },
+      },
+    },
+  },
+})
+
+const gameStateActions = props => ({
+  actions: {
+    createMessage: assign((state, action) => {
+      const text = `${action.data}`
+      const user = `${state.user} t.ractor`
+
+      const message = {
+        actor: "human",
+        text,
+        user,
+      }
+      return {
+        ...state,
+        messages: [...state.messages, message],
+      }
+    }),
+
+    createAnswer: () => {},
+  },
+
+  services: {
+    loadAssets: async (state, action) => {
+      const lstm = await ml5.charRNN("/models/data/")
+      // const db = await database.ref(`chats/${new Date().getTime()}`)
+      return Promise.resolve({ ...state, lstm })
+    },
+
+    initGame: async (state, action) => {
+      console.log("INIT GAME", props)
+      return Promise.resolve({ ...state, ...props, messages: [] })
+    },
+
+    analyseMood: async (state, action) => {
+      const text = `${action.data}`
+      const mood = await getEmotions({ text })
+      return Promise.resolve({
+        ...state,
+        messages: state.messages.map(x =>
+          x.text === text ? { ...x, mood } : x,
+        ),
+      })
+    },
+
+    createAnswer: async (state, action) => {
+      const { lstm, messages } = state
+      const seed = `${messages[messages.length - 1].text}`
+      const result = await lstm.generate({
+        seed,
+        length: 50,
+        temperature: 0.9,
+      })
+
       const index = result.sample.lastIndexOf(".")
       const text = `${result.sample.slice(0, index)}.`
 
-      this.addMessage({ user: "T.Ractor", actor: "bot", text, state: "HUMAN" })
-    })
-  }
+      const mood = await getEmotions({ text })
+      const message = { actor: "bot", user: "T.Ractor", text, mood }
+      return Promise.resolve({
+        ...state,
+        messages: [...state.messages, message],
+      })
+    },
+  },
+})
 
-  handleSend = data => {
-    const text = this.createMessage(data)
-    this.createAnswer(text)
-  }
+const Wrap = styled.div`
+  display: flex;
+  flex-flow: column nowrap;
+  align-items: stretch;
+  min-height: 100vh;
+  max-height: 100vh;
+`
 
-  render() {
-    const { messages, state, mood, count, poemName, user } = this.state
-
-    return (
-      <Layout title="Home">
-        <Flex flexWrap="wrap">
-          <Box width={getWidth(8)}>
-            <Flex style={{ height: "100vh" }} flexDirection="column">
-              <Box>
-                {/* <Life
-                  duration={config.timer * 1000}
-                  active={state === "HUMAN"}
-                  onDone={this.gameOver}
-                /> */}
-              </Box>
-              <Box flex="1" style={{ height: "100%" }}>
-                <Messages data={messages} />
-              </Box>
-              <Box flex="1" style={{ height: "100%" }}></Box>
-              <Box>
-                <TypingIndicator isTyping={state === "BOT"} />
-              </Box>
-              <Box>
-                <TextInput onSend={this.handleSend} />
-              </Box>
-            </Flex>
-          </Box>
-
-          <Box width={getWidth(4)}>
-            {[
-              "01-anger-weak.mp3",
-              "02-anger-strong.mp3",
-              "03-fear-weak.mp3",
-              "04-fear-strong.mp3",
-              "06-sadness-strong.mp3",
-              "07-joy-weak.mp3",
-              "08-joy-strong.mp3",
-              "10-analytical-strong.mp3",
-              "11-confident-weak.mp3",
-              "12-confident-strong.mp3",
-              "13-tentative-weak.mp3",
-              "14-tentative-strong.mp3",
-            ].map(sound => (
-              <Sound
-                url={`/sounds/${sound}`}
-                playStatus={
-                  mood &&
-                  mood.find(x => x.tone_id.includes(sound.split("-")[1]))
-                    ? "PLAYING"
-                    : "STOPED"
-                }
-                loop={
-                  mood &&
-                  mood.find(x => x.tone_id.includes(sound.split("-")[1]))
-                    ? true
-                    : false
-                }
-                autoLoad={true}
-                // onLoading={this.handleSongLoading}
-                // onPlaying={this.handleSongPlaying}
-                // onFinishedPlaying={this.handleSongFinishedPlaying}
-              />
-            ))}
-            <Box>
-              <P5Wrapper mood={mood && mood} sketch={sketch}></P5Wrapper>
-            </Box>
-
-            <h3>Count {count}</h3>
-            <h3>Mood</h3>
-            <Flex flexDirection="column">
-              <Box flex="1" style={{ height: "400px" }}>
-                <ul style={{ margin: "0", padding: "0" }}>
-                  {mood &&
-                    mood.map((x, i) => (
-                      <li
-                        key={i}
-                        style={{
-                          margin: "1em 0",
-                          padding: "0",
-                          listStyle: "none",
-                        }}
-                      >
-                        {x.tone_name} : {x.score}
-                      </li>
-                    ))}
-                </ul>
-              </Box>
-
-              <Box>
-                <Button onClick={this.gameOver}>End poem</Button>
-              </Box>
-            </Flex>
-          </Box>
-        </Flex>
-
-        <Modal isOpen={state === "GAME_OVER"}>
-          <div style={{ background: "white", padding: "2em" }}>
-            <h4>{poemName}</h4>
-            <h1> {user && user.toUpperCase()} T-Ractor</h1>
-            <Box>
-              <P5Wrapper
-                mood={mood && mood}
-                isOver={true}
-                sketch={sketch}
-              ></P5Wrapper>
-            </Box>
-            {/* <div style={{ padding: "2em" }}>
-              {messages && messages.map((v, i) => <p key={i}>{v.text}</p>)}
-            </div> */}
-            <button onClick={this.gameStart}>Create new poem</button>
-          </div>
-        </Modal>
-      </Layout>
-    )
-  }
-}
-
-export default IndexPage
+export default ChatPage

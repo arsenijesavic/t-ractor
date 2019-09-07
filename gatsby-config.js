@@ -1,4 +1,9 @@
+const path = require("path")
 const proxy = require("http-proxy-middleware")
+
+require("dotenv").config({
+  path: `.env.${process.env.NODE_ENV}`,
+})
 
 module.exports = {
   siteMetadata: {
@@ -8,6 +13,16 @@ module.exports = {
   },
 
   plugins: [
+    {
+      resolve: `gatsby-plugin-alias-imports`,
+      options: {
+        alias: {
+          "@components": path.resolve(__dirname, "src/components"),
+          "@utils": path.resolve(__dirname, "src/utils"),
+        },
+        extensions: [],
+      },
+    },
     {
       resolve: `gatsby-plugin-manifest`,
       options: {

@@ -1,42 +1,25 @@
-// export default () => true
+const clearBackground = false
+// const DEBUG = true
+// const DEBUG_INIT = true
+// const DEBUG_LOGIC = true
+const splatters = []
 
-let splatters = []
+function nextGaussian() {
+  return p.random(1) * 2 - 1 + (p.random(1) * 2 - 1) + (p.random(1) * 2 - 1)
+}
+
 export default function sketch(p) {
   if (typeof window === undefined) return null
-  let baseColor
-  let clearBackground = false
-  // let DEBUG = true
-  // let DEBUG_INIT = true
-  // let DEBUG_LOGIC = true
 
-  function nextGaussian() {
-    return p.random(1) * 2 - 1 + (p.random(1) * 2 - 1) + (p.random(1) * 2 - 1)
-  }
-
-  let POS_DEV = 45
-  let R_DEV = 15
-  let VELOCITY_DEV = 2.5
-  let VELOCITY_MEAN = 1
-  let TURNING_SPEED_DEV = 0.25
-  let TURNING_SPEED_MEAN = 0.25
-  let COLOR_DEV = 40
-  let fadeSpeed = 0.3
-  let shrinkSpeed = 0.1
-
-  // let direction = null
-  // let velocity = null
-  // let turningSpeed = null
-  // let x = null
-  // let y = null
-  // let r = null
-  // let c = null
-  // let finished = null
-  // let a = 255
-
-  // Daniel Shiffman
-  // http://codingtra.in
-  // http://patreon.com/codingtrain
-  // Code for: https://youtu.be/hacZU523FyM
+  const POS_DEV = 45
+  const R_DEV = 15
+  const VELOCITY_DEV = 2.5
+  const VELOCITY_MEAN = 1
+  const TURNING_SPEED_DEV = 0.25
+  const TURNING_SPEED_MEAN = 0.25
+  const COLOR_DEV = 40
+  const fadeSpeed = 0.3
+  const shrinkSpeed = 0.1
 
   function Splatter(base, x, y, r) {
     this.x = nextGaussian() * POS_DEV + x
@@ -52,12 +35,11 @@ export default function sketch(p) {
     this.direction = p.random(p.TWO_PI)
     this.velocity = nextGaussian() * VELOCITY_DEV + VELOCITY_MEAN
     this.turningSpeed = nextGaussian() * TURNING_SPEED_DEV + TURNING_SPEED_MEAN
-
     this.loop = false
 
     this.update = function() {
       if (this.r < 0) this.finished = true
-      var a = p.alpha(this.c)
+      let a = p.alpha(this.c)
 
       if (!this.loop) {
         this.r -= shrinkSpeed
@@ -129,15 +111,15 @@ export default function sketch(p) {
   }
 
   p.draw = function() {
-    if (clearBackground) p.background(0, 2)
-    // console.log(splatters.length)
-    for (var i = splatters.length - 1; i >= 0; i--) {
-      var splatter = splatters[i]
+    if (clearBackground) p.background(0, 5)
+
+    for (let i = splatters.length - 1; i >= 0; i--) {
+      const splatter = splatters[i]
       splatter.draw()
       splatter.update()
 
       if (splatter.finished) {
-        // splatters.splice(i, 1)
+        splatters.splice(i, 1)
       }
     }
 

@@ -1,86 +1,124 @@
-import React, { Component } from "react"
+import React, { useState, useEffect, useRef } from "react"
+import { useAsync } from "react-use"
+import styled from "styled-components"
 import { Flex, Box } from "@rebass/grid"
+import Layout from "@components/layout"
+import { Modal, Input } from "@components"
+import { getPoems } from "../module/firebase"
 
-import Layout from "../components/layout"
-import Header from "../components/header"
-import {
-  Button,
-  Input,
-  //Modal
-} from "../components"
-//import { getPoems } from '../module/firebase'
-// import dec2bin from '../utils/dec2bin'
+const Wrap = styled(Flex)`
+  flex-flow: column nowrap;
+  align-items: stretch;
+  max-width: 980px;
+  min-height: 100vh;
+  margin: 0 auto;
+`
 
-class IndexPage extends Component {
-  state = {}
+const IndexPage = props => {
+  const { value: poems, loading } = useAsync(async () => {
+    return await getPoems()
+    // const result = await response.text();
+  }, [])
 
-  async componentDidMount() {
-    //const poems = await getPoems()
-    // this.setState({ poems })
-  }
+  if (loading) return null
+  return (
+    <Layout title="home">
+      <Wrap>
+        <Box p={2} style={{ textAlign: "center" }} flex="1 0 auto">
+          <h1>T.Ractor</h1>
+          <h4 style={{ fontWeight: "100" }}>EveryDayLifePoetry</h4>
+        </Box>
 
-  render() {
-    // const { poems } = this.state
+        <Box p={2} flex="1 0 auto">
+          <CreatePoemForm
+            onSubmit={data => props.navigate("/chat", { state: data })}
+          />
+        </Box>
 
-    return (
-      <>
-        <Layout>
-          <Header />
-          <Flex
-            style={{ height: "90vh" }}
-            flexDirection="column"
-            justifyContent="space-between"
-          >
-            <Box p={2} style={{ textAlign: "center" }}>
-              <h1>T.Ractor</h1>
-              <h4 style={{ fontWeight: "100" }}>EveryDayLifePoetry</h4>
-            </Box>
-            {/* <Box p={2}>
-            <Poems data={poems} />
-          </Box> */}
-            <Box p={2}>
-              <CreatePoem
-                onSubmit={data => this.props.navigate("/chat", { state: data })}
-              />
-            </Box>
-          </Flex>
-        </Layout>
-      </>
-    )
-  }
+        <Box p={2}>
+          <Poems data={poems && poems} />
+        </Box>
+      </Wrap>
+    </Layout>
+  )
 }
 
 export default IndexPage
 
-class CreatePoem extends Component {
-  state = {
-    user: "",
-    timer: null,
-    times: Array.from({ length: 60 / 5 }, (v, i) => (i + 1) * 5),
-  }
+const CreatePoemForm = ({ onSubmit }) => {
+  const inputRef = useRef(null)
 
-  handleChange = e => this.setState({ [e.target.name]: e.target.value })
+  useEffect(() => {
+    inputRef.current.focus()
+  }, [inputRef])
 
-  handleSubmit = e => {
+  const handleSubmit = e => {
     e.preventDefault()
-    this.props.onSubmit({ ...this.state })
+
+    onSubmit &&
+      onSubmit({
+        user: inputRef.current.value,
+      })
   }
 
-  render() {
-    const { user } = this.state
-    return (
-      <div style={{ padding: "1.5em" }}>
-        <form onSubmit={this.handleSubmit}>
-          <Input
-            placeholder="Type your name and press Enter to start"
-            name="user"
-            value={user}
-            onChange={this.handleChange}
-          />
+  return (
+    <form onSubmit={handleSubmit}>
+      <label style={{ textAlign: "center" }} htmlFor="user">
+        Type your name and press enter to start
+      </label>
+      <Input ref={inputRef} name="user" style={{ textAlign: "center" }} />
+    </form>
+  )
+}
+const Poems = ({ data }) => {
+  const [selectedPoem, setSelectedPoem] = useState(null)
+  const isModalOpen = selectedPoem !== null
 
-          <Button type="submit">Create Poem</Button>
-        </form>
-      </div>
-    )
-  }
+  return (
+    <>
+      <h3 style={{ fontWeight: "100" }}>Poems</h3>
+      <Flex>
+        {data &&
+          Object.keys(data).map((name, i) => (
+            <Box
+              key={i}
+              mt={2}
+              p={2}
+              style={{
+                cursor: "pointer",
+                boxShadow:
+                  "0 1px 3px 0 rgba(0, 0, 0, 0.1), 0 1px 2px 0 rgba(0, 0, 0, 0.06)",
+              }}
+              onClick={() => setSelectedPoem(data[name])}
+            >
+              {/* <p style={{ fontSize: "0.5em" }}>{dec2bin(name)}</p> */}
+              <p style={{ padding: "0", margin: "0" }}>{name}</p>
+            </Box>
+          ))}
+      </Flex>
+
+      <Modal isOpen={isModalOpen} onClose={() => setSelectedPoem(null)}>
+        <div style={{ background: "white", padding: "2em" }}>
+          {/* <h4>{poemName}</h4>
+            <h1> {user && user.toUpperCase()} T-Ractor</h1> */}
+
+          <div style={{ padding: "2em" }}>
+            {selectedPoem &&
+              selectedPoem.map((v, i) => <p key={i}>{v.text}</p>)}
+          </div>
+        </div>
+        {/* {selectedPoem && (
+          <div style={{ background: "white", padding: "1.5em" }}>
+            <h6 style={{ marginBottom: "2.5em", opacity: "0.5" }}>
+              {dec2bin(selectedPoem.name)}
+            </h6>
+            <h2>{selectedPoem.name}</h2>
+            <h4>{selectedPoem.username}</h4>
+            {selectedPoem &&
+              selectedPoem.map((v, i) => <p key={i}>{v.text}</p>)}
+          </div>
+        )} */}
+      </Modal>
+    </>
+  )
 }

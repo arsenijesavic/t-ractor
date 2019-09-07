@@ -1,22 +1,19 @@
 import React from "react"
-
 import styled from "styled-components"
 
 const Wrap = styled.div`
-  width: 100px;
-  height: 12px;
+  display: inline-flex;
   > span {
-    padding: 0;
-    margin: 0;
-    margin-left: 5%;
+    width: 8px;
+    height: 8px;
+    margin-left: 4px;
     background: black;
     display: inline-block;
-    width: 6px;
-    height: 6px;
     border-radius: 50%;
     opacity: 0.4;
   }
 `
+
 export default ({ isTyping }) => (
   <Wrap>
     {isTyping && (

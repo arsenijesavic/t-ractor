@@ -1,34 +1,31 @@
-import React, { useRef } from "react"
-import styled from "styled-components"
-import { Box } from "@rebass/grid"
+import React, { useEffect, useRef } from "react"
 import { Input } from "../../../../components"
-import key from "../../../../utils/key"
 
-export default ({ onSend }) => {
-  const selfRef = useRef(null)
+const TextInput = ({ disabled, focused, onSubmit }) => {
+  const inputRef = useRef(null)
 
-  const handleGenerate = () => {
-    const value = selfRef.current.value
+  useEffect(() => {
+    inputRef.current.focus()
+  }, [inputRef, focused])
+
+  const handleSubmit = e => {
+    e.preventDefault()
+    const value = inputRef.current.value
     if (value.length > 0) {
-      selfRef.current.value = ""
-      onSend && onSend(value)
+      inputRef.current.value = ""
+      onSubmit && onSubmit(value)
     }
   }
 
   return (
-    <Wrap>
+    <form onSubmit={handleSubmit}>
       <Input
-        style={{ position: "absolute", bottom: "0", padding: "24px 16px" }}
-        ref={selfRef}
-        placeholder="Enter your text here"
-        onKeyDown={e => key(e, "Enter", handleGenerate)}
+        disabled={disabled}
+        ref={inputRef}
+        placeholder="Type your message here and press enter"
       />
-    </Wrap>
+    </form>
   )
 }
 
-const Wrap = styled(Box)`
-  height: 10vh;
-  max-height: 10vh;
-  position: relative;
-`
+export default TextInput
