@@ -1,8 +1,9 @@
 let clearBackground = false
+let reset = false
 // const DEBUG = true
 // const DEBUG_INIT = true
 // const DEBUG_LOGIC = true
-const splatters = []
+let splatters = []
 
 export default function sketch(p) {
   if (typeof window === undefined) return null
@@ -72,8 +73,9 @@ export default function sketch(p) {
   }
 
   p.setup = function() {
-    p.createCanvas(window.innerWidth, window.innerHeight)
-    // p.createCanvas(500, 500)
+    //p.createCanvas(window.innerWidth, window.innerHeight)
+    p.createCanvas(500, 500)
+    p.pixelDensity(3)
     p.smooth()
     p.background(0)
     // baseColor = p.color(p.random(255), p.random(255), p.random(255), 125)
@@ -81,6 +83,9 @@ export default function sketch(p) {
   }
 
   p.myCustomRedrawAccordingToNewPropsHandler = function(props) {
+    console.log(props)
+    reset = props.reset
+
     if (props.mood !== null && props.mood && props.mood.length > 0) {
       clearBackground = false
       props.mood.forEach(emotion => {
@@ -112,6 +117,10 @@ export default function sketch(p) {
 
   p.draw = function() {
     // if (clearBackground) p.background(0, 5)
+    if (reset) {
+      splatters = []
+      p.background(0)
+    }
 
     for (let i = splatters.length - 1; i >= 0; i--) {
       const splatter = splatters[i]

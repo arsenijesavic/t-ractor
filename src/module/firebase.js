@@ -1,4 +1,5 @@
-var firebase = require("firebase")
+import firebase from "firebase/app"
+import "firebase/database"
 
 const config = {
   apiKey: "AIzaSyB5TGeYQ7turZYzBBNZRBEDg3wwkODtcVM",
@@ -9,9 +10,11 @@ const config = {
   messagingSenderId: "431936540509",
 }
 
-if (typeof window !== "undefined") firebase.initializeApp(config)
+if (typeof window !== "undefined" && !firebase.apps.length) {
+  firebase.initializeApp(config)
+}
 
-const database = typeof window !== "undefined" ? firebase.database() : null
+const db = typeof window !== "undefined" ? firebase.database() : null
 
 const parseChat = data =>
   Object.keys(data).reduce((result, v) => {
@@ -19,20 +22,9 @@ const parseChat = data =>
     return result
   }, {})
 
-const getPoems = () =>
-  new Promise((resolve, reject) => {
-    database.ref("chats").once("value", r => {
-      const data = r.val()
-      if (data) {
-        const chats = parseChat(data)
-        resolve(chats)
-      }
-    })
-  })
-
 const getViz = () =>
   new Promise((resolve, reject) => {
-    database.ref("viz").once("value", r => {
+    db.ref("viz").once("value", r => {
       const data = r.val()
       if (data) {
         const chats = parseChat(data)
@@ -41,10 +33,27 @@ const getViz = () =>
     })
   })
 
-const saveMessage = message => {
-  const chat = database.ref(`chats/${new Date().getTime()}`)
+const getPoems = () =>
+  new Promise((resolve, reject) => {
+    db.ref("chats").once("value", r => {
+      const data = r.val()
+      if (data) {
+        const chats = parseChat(data)
+        resolve(chats)
+      } else {
+        resolve([])
+      }
+    })
+  })
+
+const savePoem = ({ id, messages }) => {
+  return db.ref(`chats/${id}`).set(messages)
+}
+
+const saveMessage = ({ id, message }) => {
+  const chat = db.ref(`chats/${id}`)
   chat.push().set(message)
 }
 
-export default database
-export { getPoems, getViz, saveMessage }
+export default db
+export { getViz, getPoems, savePoem, saveMessage }

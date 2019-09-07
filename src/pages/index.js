@@ -17,7 +17,6 @@ const Wrap = styled(Flex)`
 const IndexPage = props => {
   const { value: poems, loading } = useAsync(async () => {
     return await getPoems()
-    // const result = await response.text();
   }, [])
 
   if (loading) return null

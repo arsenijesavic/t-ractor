@@ -3,12 +3,14 @@ import { useMachine } from "@xstate/react"
 import { Machine, assign } from "xstate"
 import * as ml5 from "../../module/ml5"
 import getEmotions from "@utils/getEmotions"
+import { savePoem } from "../../module/firebase"
 // import { Spring } from "react-spring/renderprops"
-// import Sound from "react-sound"
+import NewWindow from "react-new-window"
+import sketch from "../../module/sketch"
+import P5Wrapper from "react-p5-wrapper"
 
 import styled from "styled-components"
 import Layout from "../../components/layout"
-//import NewWindow from "react-new-window"
 import { Modal, Button } from "@components"
 import {
   Header,
@@ -16,13 +18,6 @@ import {
   TextInput,
   TypingIndicator,
 } from "@components/pages/chat"
-
-import sketch from "../../module/sketch"
-import P5Wrapper from "react-p5-wrapper"
-
-// import database from "../../module/firebase"
-// import P5Wrapper from "react-p5-wrapper"
-// import sketch from "../../utils/sketch"
 
 const GAME_DURATION = 10 * 1000
 
@@ -32,63 +27,20 @@ const ChatPage = props => {
   const GAME_STATE = current.value
   const data = current.context
   const { messages, user } = data
-  // const mood = messages.length > 0 && messages[messages.length - 1].mood
-  // console.log("GAME STATE:::", GAME_STATE)
+  const mood = data.mood
+    ? data.mood
+    : messages.length > 0 && messages[messages.length - 1].mood
+  console.log("GAME STATE:::", GAME_STATE)
+
   return (
     <Layout title="home" navigation={false}>
          
-      {/* {[
-        "01-anger-weak.mp3",
-        "02-anger-strong.mp3",
-        "03-fear-weak.mp3",
-        "04-fear-strong.mp3",
-        "06-sadness-strong.mp3",
-        "07-joy-weak.mp3",
-        "08-joy-strong.mp3",
-        "10-analytical-strong.mp3",
-        "11-confident-weak.mp3",
-        "12-confident-strong.mp3",
-        "13-tentative-weak.mp3",
-        "14-tentative-strong.mp3",
-      ].map(sound => (
-        <Sound
-          url={`/sounds/${sound}`}
-          // volume={props.volume}
-          volume={1}
-          playStatus={
-            "PLAYING"
-            // mood && mood.find(x => x.tone_id.includes(sound.split("-")[1]))
-            //   ? "PLAYING"
-            //   : "STOPED"
-          }
-          loop={
-            true
-            // mood && mood.find(x => x.tone_id.includes(sound.split("-")[1]))
-            //   ? true
-            //   : false
-          }
-          autoLoad={true}
-          // onLoading={this.handleSongLoading}
-          // onPlaying={this.handleSongPlaying}
-          // onFinishedPlaying={this.handleSongFinishedPlaying}
-        />
-      ))} */}
-      {/* <Spring from={{ volume: 1 }} to={{ volume: 0 }}>
-        {({ volume }) => (
-
-        )}
-      </Spring> */}
-      {/* <Sound
-        url="/sounds/14-tentative-strong.mp3"
-        playStatus={Sound.status.PLAYING}
-        playFromPosition={0}
-        loop={true}
-      /> */}
       <Wrap>
         <Header
           count={messages.length}
           duration={GAME_DURATION}
           active={GAME_STATE === "HUMAN"}
+          reset={GAME_STATE === "HUMAN"}
           onTimeExpire={() => transition("GAME_OVER")}
         />
         <Messages data={messages} />
@@ -127,9 +79,14 @@ const ChatPage = props => {
           </Button>
         </div>
       </Modal>
-      {/* <NewWindow title="viz">
-        <P5Wrapper mood={mood && mood} sketch={sketch} />
-      </NewWindow> */}
+      <NewWindow title="viz">
+        <P5Wrapper
+          isOver={GAME_STATE === "GAME_OVER"}
+          reset={GAME_STATE === "GAME_INIT"}
+          mood={mood && mood}
+          sketch={sketch}
+        />
+      </NewWindow>
     </Layout>
   )
 }
@@ -138,6 +95,9 @@ const gameMachine = Machine({
   id: "game",
   initial: "LOADING",
   context: {
+    id: String(Math.random())
+      .split(".")
+      .pop(),
     messages: [],
   },
   states: {
@@ -198,6 +158,23 @@ const gameMachine = Machine({
     GAME_OVER: {
       on: {
         START_GAME: "GAME_INIT",
+      },
+
+      invoke: {
+        src: "gameOver",
+        onDone: {
+          // target: "BOT",
+          actions: assign((state, action) => ({
+            ...state,
+            ...action.data,
+          })),
+        },
+        // onError: {
+        //   target: "BOT",
+        //   actions: assign({
+        //     error: (_, event) => event.data,
+        //   }),
+        // },
       },
     },
 
@@ -264,13 +241,20 @@ const gameStateActions = props => ({
   services: {
     loadAssets: async (state, action) => {
       const lstm = await ml5.charRNN("/models/data/")
-      // const db = await database.ref(`chats/${new Date().getTime()}`)
       return Promise.resolve({ ...state, lstm })
     },
 
     initGame: async (state, action) => {
-      console.log("INIT GAME", props)
-      return Promise.resolve({ ...state, ...props, messages: [] })
+      return Promise.resolve({ ...state, ...props, messages: [], mood: null })
+    },
+
+    gameOver: async ({ id, messages }, action) => {
+      await savePoem({ id, messages })
+      const text = messages.reduce((acc, msg) => msg.text + acc, "")
+      const mood = await getEmotions({ text })
+      return Promise.resolve({
+        mood,
+      })
     },
 
     analyseMood: async (state, action) => {

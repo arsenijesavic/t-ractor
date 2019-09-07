@@ -2,12 +2,12 @@ import React from "react"
 import styled from "styled-components"
 import { useSpring, animated } from "react-spring"
 
-const Header = ({ count = 1, duration, active, onTimeExpire }) => {
+const Header = ({ count = 1, duration, active, reset, onTimeExpire }) => {
   return (
     <Wrap>
-      <h4 style={{ opacity: active ? "1" : "0" }}>{count}/30</h4>
+      <h4>{count}/30</h4>
       {active && (
-        <Life duration={duration} reset={active} onDone={onTimeExpire} />
+        <Life duration={duration} reset={reset} onDone={onTimeExpire} />
       )}
     </Wrap>
   )
@@ -16,6 +16,7 @@ const Header = ({ count = 1, duration, active, onTimeExpire }) => {
 export default Header
 
 const Wrap = styled.div`
+  position: relative;
   text-align: center;
   padding: 16px;
   box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1),
@@ -29,7 +30,6 @@ const ProgressLeft = styled(animated.div)`
   right: 50%;
   width: auto;
   height: 8px;
-  opacity: ${props => props.opacity};
   background-image: linear-gradient(130deg, #00b4e6, #00f0e0);
 `
 
@@ -40,7 +40,6 @@ const ProgressRight = styled(animated.div)`
   right: 0;
   width: auto;
   height: 8px;
-  opacity: ${props => props.opacity};
   background-image: linear-gradient(130deg, #00f0e0, #00b4e6);
 `
 
@@ -65,16 +64,8 @@ const Life = ({ duration = 3000, item = 1, reset, onDone }) => {
 
   return (
     <div>
-      <ProgressLeft
-        key={item.id}
-        opacity={reset ? "1" : "0"}
-        style={leftProps}
-      />
-      <ProgressRight
-        key={item.id}
-        opacity={reset ? "1" : "0"}
-        style={rightProps}
-      />
+      <ProgressLeft style={leftProps} />
+      <ProgressRight style={rightProps} />
     </div>
   )
 }
