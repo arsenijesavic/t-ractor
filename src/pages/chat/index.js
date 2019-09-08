@@ -5,9 +5,10 @@ import { Machine, assign } from "xstate"
 import getEmotions from "@utils/getEmotions"
 import * as ml5 from "@module/ml5"
 import { savePoem } from "@module/firebase"
+
 import NewWindow from "react-new-window"
-import sketch from "@module/sketch"
 import P5Wrapper from "react-p5-wrapper"
+import sketch from "@module/sketch"
 
 import styled from "styled-components"
 import Layout from "@components/layout"
@@ -20,7 +21,13 @@ import {
 } from "@components/pages/chat"
 
 //CONSTANTS
-const GAME_DURATION = 10 * 1000
+const GAME_DURATION = 30 * 1000 // 30 seconds
+
+function later(delay) {
+  return new Promise(function(resolve) {
+    setTimeout(resolve, delay)
+  })
+}
 
 const ChatPage = props => {
   const { state } = props.location && props.location
@@ -33,13 +40,14 @@ const ChatPage = props => {
     : messages.length > 0 && messages[messages.length - 1].mood
 
   // console.log("GAME STATE:::", GAME_STATE)
-
+  // console.log("DATA:::", data)
   const soundsWithVolume = _sounds.map(x => {
     const m = mood && mood.find(v => v.tone_id === x.name)
     const volume = m ? m.score : 0
     return {
       ...x,
       prevVolume: x.volume,
+      //volume: volume === 0 ? x.volume / 2 : volume,
       volume,
     }
   })
@@ -49,20 +57,16 @@ const ChatPage = props => {
     return null
   }
 
-  // const volumes = useSprings(
-  //   _sounds.length,
-  //   _sounds.map(item => ({ volume: item.volume })),
-  // )
-
   return (
     <Layout title="home" navigation={false}>
       {soundsWithVolume.map((sound, i) => (
         <Audio
           key={i}
-          // volume={volumes[i].volume}
-          status={"PLAYING"}
-          loop={true}
           src={`/sounds/${sound.src}`}
+          loop={true}
+          status={"PLAYING"}
+          // volume={sound.volume}
+          volume={1}
         />
       ))}
                 
@@ -304,8 +308,8 @@ const gameStateActions = props => ({
       const seed = `${messages[messages.length - 1].text}`
       const result = await lstm.generate({
         seed,
-        length: 50,
-        temperature: 0.9,
+        length: 100,
+        temperature: 0.5,
       })
 
       const index = result.sample.lastIndexOf(".")
@@ -313,6 +317,8 @@ const gameStateActions = props => ({
 
       const mood = await getEmotions({ text })
       const message = { actor: "bot", user: "T.Ractor", text, mood }
+
+      await later(5000)
       return Promise.resolve({
         ...state,
         messages: [...state.messages, message],
@@ -331,26 +337,28 @@ const Wrap = styled.div`
 
 export default ChatPage
 
+// tractor 01 anger weak.mp3
+// tractor 02 anger strong.mp3
+// tractor 03 fear weak.mp3
+// tractor 04 fear strong.mp3
+// tractor 05 sadness weak.mp3
+// tractor 06 sadness strong.mp3
+// tractor 07 joy weak.mp3
+// tractor 08 joy strong.mp3
+// tractor 09 analytical weak.mp3
+// tractor 10 analytical strong.mp3
+// tractor 11 confident weak.mp3
+// tractor 12 confident strong.mp3
+// tractor 13 tentative weak.mp3
+// tractor 14 tentative strong.mp3
+// tractor organ drone.mp3
+// tractor organ short.mp3
+
 const _sounds = [
-  { name: "anger", src: "02-anger-strong.mp3", volume: 1 },
-  { name: "fear", src: "04-fear-strong.mp3", volume: 1 },
-  { name: "sadness", src: "04-fear-strong.mp3", volume: 1 },
-  { name: "joy", src: "08-joy-strong.mp3", volume: 1 },
-  { name: "confident", src: "12-confident-strong.mp3", volume: 1 },
-  { name: "tentative", src: "14-tentative-strong.mp3", volume: 1 },
+  { name: "anger", src: "tractor 01 anger weak.mp3", volume: 1 },
+  { name: "fear", src: "tractor 03 fear weak.mp3", volume: 1 },
+  { name: "sadness", src: "tractor 05 sadness weak.mp3", volume: 1 },
+  { name: "joy", src: "tractor 07 joy weak.mp3", volume: 1 },
+  { name: "confident", src: "tractor 09 analytical weak.mp3", volume: 1 },
+  { name: "tentative", src: "tractor 13 tentative weak.mp3", volume: 1 },
 ]
-
-// const sounds = [
-//   // "01-anger-weak.mp3",
-
-//   // "03-fear-weak.mp3",
-//   "04-fear-strong.mp3",
-//   "06-sadness-strong.mp3",
-//   // "07-joy-weak.mp3",
-//   "08-joy-strong.mp3",
-//   "10-analytical-strong.mp3",
-//   // "11-confident-weak.mp3",
-//   "12-confident-strong.mp3",
-//   // "13-tentative-weak.mp3",
-//   "14-tentative-strong.mp3",
-// ]

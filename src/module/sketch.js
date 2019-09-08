@@ -73,7 +73,7 @@ export default function sketch(p) {
   }
 
   p.setup = function() {
-    //p.createCanvas(window.innerWidth, window.innerHeight)
+    // p.createCanvas(window.innerWidth, window.innerHeight)
     p.createCanvas(500, 500)
     p.pixelDensity(3)
     p.smooth()

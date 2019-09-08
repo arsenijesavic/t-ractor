@@ -33,6 +33,8 @@ const getViz = () =>
     })
   })
 
+// const poemsRef = db && db.collection("poems")
+
 const getPoems = () =>
   new Promise((resolve, reject) => {
     db.ref("chats").once("value", r => {
