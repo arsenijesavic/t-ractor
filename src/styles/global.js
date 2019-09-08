@@ -138,4 +138,6 @@ const styles = css`
   }
 `
 
-export default createGlobalStyle`${styles}`
+export default createGlobalStyle`
+${styles}
+`

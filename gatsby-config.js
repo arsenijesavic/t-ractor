@@ -18,6 +18,7 @@ module.exports = {
       options: {
         alias: {
           "@components": path.resolve(__dirname, "src/components"),
+          "@module": path.resolve(__dirname, "src/module"),
           "@utils": path.resolve(__dirname, "src/utils"),
         },
         extensions: [],

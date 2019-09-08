@@ -51,6 +51,7 @@
     "gatsby-transformer-sharp": "^2.2.13",
     "ibm-watson": "^4.4.0",
     "p5": "^0.9.0",
+    "pizzicato": "^0.6.4",
     "prop-types": "^15.7.2",
     "react": "^16.9.0",
     "react-dom": "^16.9.0",
@@ -63,6 +64,8 @@
     "react-use": "^12.2.0",
     "styled-components": "^4.3.2",
     "styled-tools": "^1.7.1",
+    "tween-functions": "^1.2.0",
+    "uifx": "^2.0.3",
     "xstate": "^4.6.7"
   },
   "devDependencies": {

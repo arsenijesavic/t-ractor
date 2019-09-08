@@ -4,7 +4,7 @@ import styled from "styled-components"
 import { Flex, Box } from "@rebass/grid"
 import Layout from "@components/layout"
 import { Modal, Input } from "@components"
-import { getPoems } from "../module/firebase"
+import { getPoems } from "@module/firebase"
 
 const Wrap = styled(Flex)`
   flex-flow: column nowrap;
