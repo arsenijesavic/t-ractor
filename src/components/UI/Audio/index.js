@@ -1,24 +1,11 @@
 import { useEffect, useState } from "react"
-import Pizzicato from "pizzicato"
 import { useDeepCompareEffect } from "react-use"
+import Pizzicato from "pizzicato"
 
 const Audio = ({ src, volume, loop, status }) => {
   const [sound, setSound] = useState(null)
 
-  useDeepCompareEffect(() => {
-    if (sound) {
-      console.log("CHANING STATUS", status)
-
-      if (status === "PLAYING") {
-        // sound.loop = true
-        sound.play()
-      } else if (status === "STOPPED") {
-        // sound.loop = false
-        sound.stop()
-      }
-    }
-  }, [sound, status])
-
+  //INIT SOUND
   useEffect(() => {
     const _config = {
       source: "file",
@@ -31,38 +18,31 @@ const Audio = ({ src, volume, loop, status }) => {
     }
 
     const _sound = new Pizzicato.Sound(_config, () => {
-      _sound.volume = 1
       setSound(_sound)
     })
-  }, [src, loop])
+  }, [src, volume, loop, status])
+
+  //CHANGE STATUS BASED ON PROPS
+  useDeepCompareEffect(() => {
+    if (sound) {
+      switch (status) {
+        case "PLAYING":
+          // sound.loop = true
+          sound.play()
+          return
+
+        case "STOPPED":
+          // sound.loop = false
+          sound.stop()
+          return
+
+        default:
+          break
+      }
+    }
+  }, [sound, status])
 
   return null
 }
 
 export default Audio
-
-// useDeepCompareEffect(() => {
-//   if (sound) {
-//     switch (status) {
-//       case "PLAYING":
-//         return
-//       case "PAUSE":
-//         // sound.pause()
-//         return
-
-//       default:
-//         break
-//     }
-//   }
-// }, [sound])
-
-// useDeepCompareEffect(() => {
-//   if (sound) {
-//     console.log("CHANGING VOLUME TO", volume)
-//     sound.volume = volume
-//     // if (volume) {
-//     // } else {
-//     //   sound.volume = 0
-//     // }
-//   }
-// }, [sound, volume])

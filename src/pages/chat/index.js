@@ -24,7 +24,7 @@ import {
 
 //CONSTANTS
 const DEBUG = false
-const NOT_SSR = typeof window !== "undefined"
+// const NOT_SSR = typeof window !== "undefined"
 const GAME_DURATION = 30 * 1000 // 30 seconds
 
 const ChatPage = props => {
@@ -55,10 +55,10 @@ const ChatPage = props => {
 
   const soundsWithVolume = soundsVolumeSelector(_sounds, mood)
 
-  if (!state && NOT_SSR) {
-    props.navigate("/")
-    return null
-  }
+  // if (!state && NOT_SSR) {
+  //   props.navigate("/")
+  //   return null
+  // }
 
   if (DEBUG) {
     // console.log("GAME STATE:::", GAME_STATE)
