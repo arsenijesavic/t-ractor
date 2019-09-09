@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react"
-import { useDeepCompareEffect } from "react-use"
+import { useDeepCompareEffect, useTween } from "react-use"
 import Pizzicato from "pizzicato"
 
 const Audio = ({ src, volume, loop, status }) => {

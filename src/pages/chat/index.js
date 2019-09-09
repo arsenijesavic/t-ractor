@@ -22,6 +22,16 @@ import {
   TypingIndicator,
 } from "@components/pages/chat"
 
+const _sounds = [
+  { name: "_", src: "tractor_organ_drone.mp3", volume: 1, loop: true },
+  { name: "anger", src: "tractor_01_anger_weak.mp3", volume: 1 },
+  { name: "fear", src: "tractor_03_fear_weak.mp3", volume: 1 },
+  { name: "sadness", src: "tractor_05_sadness_weak.mp3", volume: 1 },
+  { name: "joy", src: "tractor_07_joy_weak.mp3", volume: 1 },
+  { name: "confident", src: "tractor_09_analytical_weak.mp3", volume: 1 },
+  { name: "tentative", src: "tractor_13_tentative_weak.mp3", volume: 1 },
+]
+
 //CONSTANTS
 const DEBUG = false
 // const NOT_SSR = typeof window !== "undefined"
@@ -61,14 +71,15 @@ const ChatPage = props => {
   // }
 
   if (DEBUG) {
-    // console.log("GAME STATE:::", GAME_STATE)
+    console.log("GAME STATE:::", GAME_STATE)
     console.log("MOOD:::", mood)
+    console.log("DATA:::", data)
   }
 
   return (
     <Layout title="home" navigation={false}>
       {/* <Sketch /> */}
-      {/* <State current={GAME_STATE} active="READY">
+      <State current={GAME_STATE} active="READY">
         <Modal isOpen={true}>
           <div style={{ background: "white", padding: "2em" }}>
             <div onKeyDown={data => transition("NEXT")}>
@@ -78,7 +89,7 @@ const ChatPage = props => {
             <Button onClick={data => transition("NEXT")}>START GAME</Button>
           </div>
         </Modal>
-      </State> */}
+      </State>
           
       <>
         <Wrap>
@@ -351,33 +362,6 @@ const Wrap = styled.div`
 `
 
 export default ChatPage
-
-// tractor 01 anger weak.mp3
-// tractor 02 anger strong.mp3
-// tractor 03 fear weak.mp3
-// tractor 04 fear strong.mp3
-// tractor 05 sadness weak.mp3
-// tractor 06 sadness strong.mp3
-// tractor 07 joy weak.mp3
-// tractor 08 joy strong.mp3
-// tractor 09 analytical weak.mp3
-// tractor 10 analytical strong.mp3
-// tractor 11 confident weak.mp3
-// tractor 12 confident strong.mp3
-// tractor 13 tentative weak.mp3
-// tractor 14 tentative strong.mp3
-// tractor organ drone.mp3
-// tractor organ short.mp3
-
-const _sounds = [
-  { name: "_", src: "tractor organ drone.mp3", volume: 1, loop: true },
-  { name: "anger", src: "tractor 01 anger weak.mp3", volume: 1 },
-  { name: "fear", src: "tractor 03 fear weak.mp3", volume: 1 },
-  { name: "sadness", src: "tractor 05 sadness weak.mp3", volume: 1 },
-  { name: "joy", src: "tractor 07 joy weak.mp3", volume: 1 },
-  { name: "confident", src: "tractor 09 analytical weak.mp3", volume: 1 },
-  { name: "tentative", src: "tractor 13 tentative weak.mp3", volume: 1 },
-]
 
 const State = ({ current, active, children }) =>
   current === active ? children : null
