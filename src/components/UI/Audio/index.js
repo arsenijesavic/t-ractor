@@ -1,9 +1,8 @@
 import { useEffect, useState } from "react"
 import Pizzicato from "pizzicato"
-// import { useTween } from "react-use"
 import { useDeepCompareEffect } from "react-use"
 
-const Audio = ({ src = "", volume, loop, status, currentTime = 0 }) => {
+const Audio = ({ src, volume, loop, status }) => {
   const [sound, setSound] = useState(null)
 
   useDeepCompareEffect(() => {
@@ -17,17 +16,8 @@ const Audio = ({ src = "", volume, loop, status, currentTime = 0 }) => {
         // sound.loop = false
         sound.stop()
       }
-
-      // sound.volume = volume
     }
   }, [sound, status])
-
-  // useDeepCompareEffect(() => {
-  //   if (sound) {
-  //     console.log("CHANING VOLUME", volume)
-  //     sound.volume = volume
-  //   }
-  // }, [sound, volume])
 
   useEffect(() => {
     const _config = {
@@ -35,22 +25,13 @@ const Audio = ({ src = "", volume, loop, status, currentTime = 0 }) => {
       options: {
         path: src,
         loop,
-        attack: 5,
-        release: 50,
+        attack: 10,
+        release: 10,
       },
     }
 
-    // var reverb = new Pizzicato.Effects.Reverb({
-    //   time: 10.01,
-    //   decay: 5.01,
-    //   reverse: false,
-    //   mix: 0.5,
-    // })
-
     const _sound = new Pizzicato.Sound(_config, () => {
-      // _sound.play()
       _sound.volume = 1
-      // _sound.addEffect(reverb)
       setSound(_sound)
     })
   }, [src, loop])

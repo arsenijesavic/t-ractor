@@ -1,4 +1,5 @@
-import React, { useRef, useEffect, useState } from "react"
+import React from "react"
+
 import { useMachine } from "@xstate/react"
 import { Machine, assign } from "xstate"
 
@@ -7,9 +8,9 @@ import getEmotions from "@utils/getEmotions"
 import * as ml5 from "@module/ml5"
 import { savePoem } from "@module/firebase"
 
-import NewWindow from "react-new-window"
-import P5Wrapper from "react-p5-wrapper"
-import sketch from "@module/sketch"
+// import NewWindow from "react-new-window"
+// import P5Wrapper from "react-p5-wrapper"
+// import sketch from "@module/sketch"
 
 import styled from "styled-components"
 import Layout from "@components/layout"
@@ -381,64 +382,65 @@ const _sounds = [
 const State = ({ current, active, children }) =>
   current === active ? children : null
 
-const Sketch = () => {
-  const canvasRef = useRef()
-  const [points, setPoint] = useState([])
-  useEffect(draw, [points])
+// import React, { useRef, useEffect, useState } from "react"
+// const Sketch = () => {
+//   const canvasRef = useRef()
+//   const [points, setPoint] = useState([])
+//   useEffect(draw, [points])
 
-  function onMouseClick(e) {
-    const canvas = canvasRef.current
-    const rect = canvas.getBoundingClientRect()
-    const pos = {
-      x: e.clientX - rect.left,
-      y: e.clientY - rect.top,
-    }
+//   function onMouseClick(e) {
+//     const canvas = canvasRef.current
+//     const rect = canvas.getBoundingClientRect()
+//     const pos = {
+//       x: e.clientX - rect.left,
+//       y: e.clientY - rect.top,
+//     }
 
-    setPoint([...points, pos])
-  }
+//     setPoint([...points, pos])
+//   }
 
-  function draw() {
-    console.log(points)
-    const canvas = canvasRef.current
-    const ctx = canvasRef.current.getContext("2d")
-    // ctx.clearRect(0, 0, canvas.width, canvas.height)
-    // ctx.globalCompositeOperation = "source-over"
+//   function draw() {
+//     console.log(points)
+//     const canvas = canvasRef.current
+//     const ctx = canvasRef.current.getContext("2d")
+//     // ctx.clearRect(0, 0, canvas.width, canvas.height)
+//     // ctx.globalCompositeOperation = "source-over"
 
-    // ctx.arc(50, 50, 50, 0, Math.PI * 2)
-    // ctx.arc(140, 50, 50, 0, Math.PI * 2)
-    //points.map(p => ctx.lineTo(p.x, p.y))
-    points.forEach(p => {
-      ctx.beginPath()
-      // ctx.moveTo(0, 0)
-      // ctx.lineTo(p.x, p.y)
-      ctx.arc(p.x, p.y, 100, 0, Math.PI * 2)
-      ctx.closePath()
-    })
-    // ctx.clip()
-    ctx.stroke()
+//     // ctx.arc(50, 50, 50, 0, Math.PI * 2)
+//     // ctx.arc(140, 50, 50, 0, Math.PI * 2)
+//     //points.map(p => ctx.lineTo(p.x, p.y))
+//     points.forEach(p => {
+//       ctx.beginPath()
+//       // ctx.moveTo(0, 0)
+//       // ctx.lineTo(p.x, p.y)
+//       ctx.arc(p.x, p.y, 100, 0, Math.PI * 2)
+//       ctx.closePath()
+//     })
+//     // ctx.clip()
+//     ctx.stroke()
 
-    // ctx.fillStyle = "red"
-    // ctx.fillRect(0, 0, canvas.width, canvas.height)
+//     // ctx.fillStyle = "red"
+//     // ctx.fillRect(0, 0, canvas.width, canvas.height)
 
-    // ctx.beginPath()
-    // ctx.rect(0, 0, canvas.width, canvas.height)
+//     // ctx.beginPath()
+//     // ctx.rect(0, 0, canvas.width, canvas.height)
 
-    // ctx.restore()
+//     // ctx.restore()
 
-    // points.forEach(p => {
-    //   ctx.save()
-    //   ctx.beginPath()
-    //   ctx.arc(p.x, p.y, 100, 0, Math.PI * 2)
-    //   ctx.clip()
-    //   // ctx.strokeStyle = "black"
-    //   // ctx.stroke()
-    //   ctx.restore()
-    // })
+//     // points.forEach(p => {
+//     //   ctx.save()
+//     //   ctx.beginPath()
+//     //   ctx.arc(p.x, p.y, 100, 0, Math.PI * 2)
+//     //   ctx.clip()
+//     //   // ctx.strokeStyle = "black"
+//     //   // ctx.stroke()
+//     //   ctx.restore()
+//     // })
 
-    //SKETCH GOES HERE
-  }
+//     //SKETCH GOES HERE
+//   }
 
-  return (
-    <canvas ref={canvasRef} width={500} height={500} onClick={onMouseClick} />
-  )
-}
+//   return (
+//     <canvas ref={canvasRef} width={500} height={500} onClick={onMouseClick} />
+//   )
+// }
