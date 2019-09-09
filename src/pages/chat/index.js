@@ -1,7 +1,8 @@
-import React from "react"
+import React, { useRef, useEffect, useState } from "react"
 import { useMachine } from "@xstate/react"
 import { Machine, assign } from "xstate"
 
+import later from "@utils/later"
 import getEmotions from "@utils/getEmotions"
 import * as ml5 from "@module/ml5"
 import { savePoem } from "@module/firebase"
@@ -21,13 +22,9 @@ import {
 } from "@components/pages/chat"
 
 //CONSTANTS
+const DEBUG = false
+const NOT_SSR = typeof window !== "undefined"
 const GAME_DURATION = 30 * 1000 // 30 seconds
-
-function later(delay) {
-  return new Promise(function(resolve) {
-    setTimeout(resolve, delay)
-  })
-}
 
 const ChatPage = props => {
   const { state } = props.location && props.location
@@ -37,91 +34,111 @@ const ChatPage = props => {
   const { messages, user } = data
   const mood = data.mood
     ? data.mood
-    : messages.length > 0 && messages[messages.length - 1].mood
+    : messages && messages.length > 0 && messages[messages.length - 1].mood
 
-  // console.log("GAME STATE:::", GAME_STATE)
-  // console.log("DATA:::", data)
-  const soundsWithVolume = _sounds.map(x => {
-    const m = mood && mood.find(v => v.tone_id === x.name)
-    const volume = m ? m.score : 0
-    return {
-      ...x,
-      prevVolume: x.volume,
-      //volume: volume === 0 ? x.volume / 2 : volume,
-      volume,
-    }
-  })
+  const soundsVolumeSelector = (data, mood) =>
+    data.map(x => {
+      const moodForEmotion = mood && mood.find(v => v.tone_id === x.name)
 
-  if (!state) {
+      return {
+        ...x,
+        //volume: moodForEmotion ? moodForEmotion.score : x.name === "_" ? 1 : 0,
+        status: moodForEmotion
+          ? "PLAYING"
+          : x.name === "_"
+          ? "PLAYING"
+          : "STOPED",
+        // volume:1,
+      }
+    })
+
+  const soundsWithVolume = soundsVolumeSelector(_sounds, mood)
+
+  if (!state && NOT_SSR) {
     props.navigate("/")
     return null
   }
 
+  if (DEBUG) {
+    // console.log("GAME STATE:::", GAME_STATE)
+    console.log("MOOD:::", mood)
+  }
+
   return (
     <Layout title="home" navigation={false}>
-      {soundsWithVolume.map((sound, i) => (
-        <Audio
-          key={i}
-          src={`/sounds/${sound.src}`}
-          loop={true}
-          status={"PLAYING"}
-          // volume={sound.volume}
-          volume={1}
-        />
-      ))}
-                
-      <Wrap>
-        <Header
-          count={messages.length}
-          duration={GAME_DURATION}
-          active={GAME_STATE === "HUMAN"}
-          reset={GAME_STATE === "HUMAN"}
-          onTimeExpire={() => transition("GAME_OVER")}
-        />
-        <Messages data={messages} />
-        <TypingIndicator isTyping={GAME_STATE === "BOT"} />
-        <TextInput
-          focused={GAME_STATE === "HUMAN"}
-          disabled={GAME_STATE === "BOT"}
-          onSubmit={data => transition("NEXT", { data })}
-        />
-      </Wrap>
-      <Modal isOpen={GAME_STATE === "READY"}>
-        <div style={{ background: "white", padding: "2em" }}>
-          <div>
-            <p>The Game is played in a series of rounds.</p>
-            <p> During each round, players can do x, y or z.</p>
+      {/* <Sketch /> */}
+      {/* <State current={GAME_STATE} active="READY">
+        <Modal isOpen={true}>
+          <div style={{ background: "white", padding: "2em" }}>
+            <div onKeyDown={data => transition("NEXT")}>
+              <p>The Game is played in a series of rounds.</p>
+              <p> During each round, players can do x, y or z.</p>
+            </div>
+            <Button onClick={data => transition("NEXT")}>START GAME</Button>
           </div>
-          <Button onClick={data => transition("NEXT")}>START GAME</Button>
-        </div>
-      </Modal>
-      <Modal isOpen={GAME_STATE === "GAME_OVER"}>
-        <div
-          style={{
-            height: "100vh",
-            padding: "2em",
-            display: "flex",
-            flexDirection: "column",
-          }}
-        >
-          <h1>{user && user.toUpperCase()} T-Ractor</h1>
-          <div style={{ flex: "1 0 auto" }}>
-            {messages.length > 0 &&
-              messages.map((v, i) => <p key={i}>{v.text}</p>)}
+        </Modal>
+      </State> */}
+          
+      <>
+        <Wrap>
+          <Header
+            count={messages.length}
+            duration={GAME_DURATION}
+            active={GAME_STATE === "HUMAN"}
+            reset={GAME_STATE === "HUMAN"}
+            // onTimeExpire={() => transition("GAME_OVER")}
+          />
+          <Messages data={messages} />
+          <TypingIndicator isTyping={GAME_STATE === "BOT"} />
+          <TextInput
+            focused={GAME_STATE === "HUMAN"}
+            disabled={GAME_STATE === "BOT"}
+            onSubmit={data => transition("NEXT", { data })}
+          />
+        </Wrap>
+
+        {/*
+        <NewWindow title="viz">
+          <P5Wrapper
+            isOver={GAME_STATE === "GAME_OVER"}
+            reset={GAME_STATE === "GAME_INIT"}
+            mood={mood && mood}
+            sketch={sketch}
+          />
+        </NewWindow> */}
+
+        {soundsWithVolume.map((sound, i) => (
+          <Audio
+            key={i}
+            src={`/sounds/${sound.src}`}
+            loop={sound.loop}
+            status={sound.status}
+            volume={sound.volume}
+          />
+        ))}
+      </>
+      <State current={GAME_STATE} active="GAME_OVER">
+        <Modal isOpen={true}>
+          <div
+            style={{
+              height: "100vh",
+              padding: "2em",
+              display: "flex",
+              flexDirection: "column",
+            }}
+          >
+            <h1>{user && user.toUpperCase()} T-Ractor</h1>
+            <div style={{ flex: "1 0 auto" }}>
+              {messages &&
+                messages.length > 0 &&
+                messages.map((v, i) => <p key={i}>{v.text}</p>)}
+            </div>
+            <Button onClick={data => transition("START_GAME")}>
+              Create new poem
+            </Button>
           </div>
-          <Button onClick={data => transition("START_GAME")}>
-            Create new poem
-          </Button>
-        </div>
-      </Modal>
-      <NewWindow title="viz">
-        <P5Wrapper
-          isOver={GAME_STATE === "GAME_OVER"}
-          reset={GAME_STATE === "GAME_INIT"}
-          mood={mood && mood}
-          sketch={sketch}
-        />
-      </NewWindow>
+        </Modal>
+      </State>
     </Layout>
   )
 }
@@ -136,9 +153,6 @@ const gameMachine = Machine({
     messages: [],
   },
   states: {
-    // LOADING: {
-    //   entry: "notifySuccess",
-
     LOADING: {
       invoke: {
         src: "loadAssets",
@@ -305,11 +319,11 @@ const gameStateActions = props => ({
 
     createAnswer: async (state, action) => {
       const { lstm, messages } = state
-      const seed = `${messages[messages.length - 1].text}`
+      const seed = `${messages[messages.length - 1].text}.`
       const result = await lstm.generate({
         seed,
         length: 100,
-        temperature: 0.5,
+        temperature: 0.3,
       })
 
       const index = result.sample.lastIndexOf(".")
@@ -355,6 +369,7 @@ export default ChatPage
 // tractor organ short.mp3
 
 const _sounds = [
+  { name: "_", src: "tractor organ drone.mp3", volume: 1, loop: true },
   { name: "anger", src: "tractor 01 anger weak.mp3", volume: 1 },
   { name: "fear", src: "tractor 03 fear weak.mp3", volume: 1 },
   { name: "sadness", src: "tractor 05 sadness weak.mp3", volume: 1 },
@@ -362,3 +377,68 @@ const _sounds = [
   { name: "confident", src: "tractor 09 analytical weak.mp3", volume: 1 },
   { name: "tentative", src: "tractor 13 tentative weak.mp3", volume: 1 },
 ]
+
+const State = ({ current, active, children }) =>
+  current === active ? children : null
+
+const Sketch = () => {
+  const canvasRef = useRef()
+  const [points, setPoint] = useState([])
+  useEffect(draw, [points])
+
+  function onMouseClick(e) {
+    const canvas = canvasRef.current
+    const rect = canvas.getBoundingClientRect()
+    const pos = {
+      x: e.clientX - rect.left,
+      y: e.clientY - rect.top,
+    }
+
+    setPoint([...points, pos])
+  }
+
+  function draw() {
+    console.log(points)
+    const canvas = canvasRef.current
+    const ctx = canvasRef.current.getContext("2d")
+    // ctx.clearRect(0, 0, canvas.width, canvas.height)
+    // ctx.globalCompositeOperation = "source-over"
+
+    // ctx.arc(50, 50, 50, 0, Math.PI * 2)
+    // ctx.arc(140, 50, 50, 0, Math.PI * 2)
+    //points.map(p => ctx.lineTo(p.x, p.y))
+    points.forEach(p => {
+      ctx.beginPath()
+      // ctx.moveTo(0, 0)
+      // ctx.lineTo(p.x, p.y)
+      ctx.arc(p.x, p.y, 100, 0, Math.PI * 2)
+      ctx.closePath()
+    })
+    // ctx.clip()
+    ctx.stroke()
+
+    // ctx.fillStyle = "red"
+    // ctx.fillRect(0, 0, canvas.width, canvas.height)
+
+    // ctx.beginPath()
+    // ctx.rect(0, 0, canvas.width, canvas.height)
+
+    // ctx.restore()
+
+    // points.forEach(p => {
+    //   ctx.save()
+    //   ctx.beginPath()
+    //   ctx.arc(p.x, p.y, 100, 0, Math.PI * 2)
+    //   ctx.clip()
+    //   // ctx.strokeStyle = "black"
+    //   // ctx.stroke()
+    //   ctx.restore()
+    // })
+
+    //SKETCH GOES HERE
+  }
+
+  return (
+    <canvas ref={canvasRef} width={500} height={500} onClick={onMouseClick} />
+  )
+}

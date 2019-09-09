@@ -1,11 +1,21 @@
 import React from "react"
-import styled from "styled-components"
+import styled, { keyframes } from "styled-components"
 import { useSpring, animated } from "react-spring"
+
+const pulse = keyframes`
+  from { transform: scale3d(1, 1, 1); }
+  50%{ transform: scale3d(1.5, 1.5, 1.5); }
+  to { transform: scale3d(1, 1, 1); }
+`
+const CountText = styled.h5`
+  font-weight: 100;
+  animation: ${pulse} 0.4s ease-in-out;
+`
 
 const Header = ({ count = 1, duration, active, reset, onTimeExpire }) => {
   return (
     <Wrap>
-      <h4>{count}/30</h4>
+      <CountText key={count}>{count}/30</CountText>
       {active && (
         <Life duration={duration} reset={reset} onDone={onTimeExpire} />
       )}

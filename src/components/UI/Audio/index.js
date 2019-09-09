@@ -3,20 +3,31 @@ import Pizzicato from "pizzicato"
 // import { useTween } from "react-use"
 import { useDeepCompareEffect } from "react-use"
 
-const Audio = ({
-  src = "",
-  volume = 0,
-  loop = true,
-  status = "PLAYING",
-  currentTime = 0,
-}) => {
-  const [sound, setSound] = useState({})
+const Audio = ({ src = "", volume, loop, status, currentTime = 0 }) => {
+  const [sound, setSound] = useState(null)
+
   useDeepCompareEffect(() => {
     if (sound) {
-      console.log("CHANING VOLUME", volume)
-      sound.volume = volume
+      console.log("CHANING STATUS", status)
+
+      if (status === "PLAYING") {
+        // sound.loop = true
+        sound.play()
+      } else if (status === "STOPPED") {
+        // sound.loop = false
+        sound.stop()
+      }
+
+      // sound.volume = volume
     }
-  }, [sound, volume])
+  }, [sound, status])
+
+  // useDeepCompareEffect(() => {
+  //   if (sound) {
+  //     console.log("CHANING VOLUME", volume)
+  //     sound.volume = volume
+  //   }
+  // }, [sound, volume])
 
   useEffect(() => {
     const _config = {
@@ -24,20 +35,22 @@ const Audio = ({
       options: {
         path: src,
         loop,
+        attack: 5,
+        release: 50,
       },
     }
 
-    var reverb = new Pizzicato.Effects.Reverb({
-      time: 10.01,
-      decay: 0.01,
-      reverse: false,
-      mix: 0.5,
-    })
+    // var reverb = new Pizzicato.Effects.Reverb({
+    //   time: 10.01,
+    //   decay: 5.01,
+    //   reverse: false,
+    //   mix: 0.5,
+    // })
 
     const _sound = new Pizzicato.Sound(_config, () => {
-      _sound.play()
-      _sound.volume = 0
-      _sound.addEffect(reverb)
+      // _sound.play()
+      _sound.volume = 1
+      // _sound.addEffect(reverb)
       setSound(_sound)
     })
   }, [src, loop])
