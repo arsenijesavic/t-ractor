@@ -12,10 +12,17 @@ const CountText = styled.h5`
   animation: ${pulse} 0.4s ease-in-out;
 `
 
-const Header = ({ count = 1, duration, active, reset, onTimeExpire }) => {
+const Header = ({
+  count = 1,
+  total,
+  duration,
+  active,
+  reset,
+  onTimeExpire,
+}) => {
   return (
     <Wrap>
-      <CountText key={count}>{count}/30</CountText>
+      <CountText key={count}>{count}/total</CountText>
       {active && (
         <Life duration={duration} reset={reset} onDone={onTimeExpire} />
       )}

@@ -48,6 +48,8 @@ const ChatPage = props => {
   const data = current.context
   const { messages, user } = data
 
+  const windowRef = useRef()
+
   const handleKeyDown = e => {
     if (["INSTRUCTIONS", "GAME_OVER"].some(gs => gs === GAME_STATE)) {
       transition("NEXT")
@@ -111,6 +113,7 @@ const ChatPage = props => {
         {/* MAIN WINDOW */}
         <Wrap>
           <Header
+            total={TOTAL_NUMBER_OF_MESSAGES}
             count={messages.length}
             duration={GAME_DURATION}
             active={GAME_STATE === "HUMAN"}
@@ -126,8 +129,9 @@ const ChatPage = props => {
           />
         </Wrap>
 
-        <NewWindow title="viz">
+        <NewWindow ref={windowRef} title="viz">
           <P5Wrapper
+            windowRef={windowRef && windowRef.current && windowRef.current}
             isOver={GAME_STATE === "GAME_OVER"}
             reset={GAME_STATE === "GAME_INIT"}
             mood={mood && mood}
@@ -146,7 +150,6 @@ const ChatPage = props => {
         ))}
       </>
 
-      {/* GAME OVER MODAL */}
       <State current={GAME_STATE} active="GAME_OVER">
         <Modal isOpen={true}>
           <div
