@@ -26,10 +26,9 @@ import {
 
 //CONSTANTS
 const DEBUG = false
-// const NOT_SSR = typeof window !== "undefined"
+const NOT_SSR = typeof window !== "undefined"
 const GAME_DURATION = 30 * 1000 // 30 seconds
 const TOTAL_NUMBER_OF_MESSAGES = 15
-/**/
 
 const sounds = [
   { name: "_", src: "tractor_organ_drone.mp3", volume: 1, loop: true },
@@ -129,15 +128,17 @@ const ChatPage = props => {
           />
         </Wrap>
 
-        <NewWindow ref={windowRef} title="viz">
-          <P5Wrapper
-            windowRef={windowRef && windowRef.current && windowRef.current}
-            isOver={GAME_STATE === "GAME_OVER"}
-            reset={GAME_STATE === "GAME_INIT"}
-            mood={mood && mood}
-            sketch={sketch}
-          />
-        </NewWindow>
+        {NOT_SSR && (
+          <NewWindow ref={windowRef} title="VISUAL">
+            <P5Wrapper
+              windowRef={windowRef && windowRef.current && windowRef.current}
+              isOver={GAME_STATE === "GAME_OVER"}
+              reset={GAME_STATE === "GAME_INIT"}
+              mood={mood && mood}
+              sketch={sketch}
+            />
+          </NewWindow>
+        )}
 
         {soundsWithVolume.map((sound, i) => (
           <Audio

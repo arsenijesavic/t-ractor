@@ -19,6 +19,10 @@ exports.onCreateWebpackConfig = ({ actions, stage }) => {
             test: /pizzicato/,
             use: ["null-loader"],
           },
+          {
+            test: /sketch/,
+            use: ["null-loader"],
+          },
         ],
       },
     })

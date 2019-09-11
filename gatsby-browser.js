@@ -1,9 +1,8 @@
 import React from "react"
 import { ThemeProvider } from "styled-components"
 import theme from "./src/styles/theme"
-// import ReactGA from "react-ga"
-
 import "./src/styles/hamburgers.css"
+// import ReactGA from "react-ga"
 
 //ReactGA.initialize("UA-142414970-1")
 

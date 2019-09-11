@@ -1,28 +1,18 @@
 export default function sketch(p) {
-  // const DEBUG = true
-  // const DEBUG_INIT = true
-  // const DEBUG_LOGIC = true
+  if (typeof window === undefined) return null
+
   const POS_DEV = 45
   const R_DEV = 15
   const VELOCITY_DEV = 2.5
   const VELOCITY_MEAN = 1
   const TURNING_SPEED_DEV = 0.25
   const TURNING_SPEED_MEAN = 0.25
-  // const COLOR_DEV = 40
   const fadeSpeed = 0.3
   const shrinkSpeed = 0.1
+
   let reset = false
   let splatters = []
   let canvas = null
-
-  function resizeWindow() {
-    console.log(canvas)
-    // canvas.width = window.innerWidth;
-    // canvas.height = window.innerHeight;
-    // camera.aspect = window.innerWidth / window.innerHeight;
-    // camera.updateProjectionMatrix();
-    // renderer.setSize(window.innerWidth, window.innerHeight);
-  }
 
   function nextGaussian() {
     return p.random(1) * 2 - 1 + (p.random(1) * 2 - 1) + (p.random(1) * 2 - 1)
@@ -91,17 +81,6 @@ export default function sketch(p) {
   }
 
   p.myCustomRedrawAccordingToNewPropsHandler = function(props) {
-    const w = props.windowRef
-
-    console.log(w)
-    // w.addEventListener(
-    //   "resize",
-    //   () => {
-    //     resizeWindow()
-    //   },
-    //   1000,
-    // )
-
     reset = props.reset
 
     if (props.mood !== null && props.mood && props.mood.length > 0) {
@@ -135,7 +114,6 @@ export default function sketch(p) {
 
   p.draw = function() {
     if (reset) {
-      console.log("REST")
       splatters = []
       p.background(0)
       reset = false
