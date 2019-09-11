@@ -15,6 +15,10 @@ exports.onCreateWebpackConfig = ({ actions, stage }) => {
             test: /react-new-window/,
             use: ["null-loader"],
           },
+          {
+            test: /pizzicato/,
+            use: ["null-loader"],
+          },
         ],
       },
     })
