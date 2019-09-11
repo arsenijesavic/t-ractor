@@ -1,4 +1,4 @@
-import React, { useEffect, useRef } from "react"
+import React, { useEffect, useRef, useState } from "react"
 
 import { useMachine } from "@xstate/react"
 import { Machine, assign } from "xstate"
@@ -12,7 +12,9 @@ import NewWindow from "react-new-window"
 import P5Wrapper from "react-p5-wrapper"
 import sketch from "@module/sketch"
 
-import styled from "styled-components"
+import Typist from "react-typist"
+
+import styled, { keyframes } from "styled-components"
 import Layout from "@components/layout"
 import { Audio, Input, Modal } from "@components"
 import {
@@ -26,7 +28,7 @@ import {
 const DEBUG = false
 // const NOT_SSR = typeof window !== "undefined"
 const GAME_DURATION = 30 * 1000 // 30 seconds
-const TOTAL_NUMBER_OF_MESSAGE = 30
+const TOTAL_NUMBER_OF_MESSAGES = 15
 /**/
 
 const sounds = [
@@ -47,16 +49,16 @@ const ChatPage = props => {
   const { messages, user } = data
 
   const handleKeyDown = e => {
-    console.log("handleKeyDown")
-    // if (["INSTRUCTIONS"].includes(GAME_STATE)) {
-    transition("NEXT")
+    if (["INSTRUCTIONS", "GAME_OVER"].some(gs => gs === GAME_STATE)) {
+      transition("NEXT")
+    }
   }
 
   const mood = data.mood
     ? data.mood
     : messages && messages.length > 0 && messages[messages.length - 1].mood
 
-  if (messages.length === TOTAL_NUMBER_OF_MESSAGE) {
+  if (messages.length === TOTAL_NUMBER_OF_MESSAGES) {
     transition("GAME_OVER")
   }
 
@@ -85,42 +87,24 @@ const ChatPage = props => {
   }
 
   return (
-    <Layout title="home" navigation={false}>
+    <Layout title="home" navigation={false} onKeyDown={handleKeyDown}>
       <State current={GAME_STATE} active="INSTRUCTIONS">
-        <div onKeyDown={handleKeyDown}>
-          <Modal isOpen={true}>
-            <div
-              style={{
-                minHeight: "100vh",
-                padding: "1em",
-                display: "flex",
-                flexDirection: "column",
-                justifyContent: "center",
-                alignItems: "center",
-              }}
-            >
-              <p>Hi, I am T.Ractor.</p>
-              <p>
-                You can make EveryDayLIfePoetry by interacting with me – line by
-                line
-              </p>
-              <p>
-                We have 60 seconds per line and maximum 30 lines for our poem.{" "}
-              </p>
-              <p>You can start now! </p>
-              <p>
-                By using our site you agree to the following terms of service
-              </p>
-              <h6>Press enter to start game</h6>
-            </div>
-          </Modal>
-        </div>
+        <Instructions />
       </State>
 
       <State current={GAME_STATE} active="GAME_INIT">
-        <Modal isOpen={true}>
+        <div
+          style={{
+            minHeight: "100vh",
+            padding: "1em",
+            display: "flex",
+            flexDirection: "column",
+            justifyContent: "center",
+            alignItems: "center",
+          }}
+        >
           <CreatePoemForm onSubmit={data => transition("NEXT", { data })} />
-        </Modal>
+        </div>
       </State>
 
       <>
@@ -164,32 +148,30 @@ const ChatPage = props => {
 
       {/* GAME OVER MODAL */}
       <State current={GAME_STATE} active="GAME_OVER">
-        <div onKeyDown={handleKeyDown}>
-          <Modal isOpen={true}>
-            <div
-              style={{
-                minHeight: "100vh",
-                padding: "1em",
-                display: "flex",
-                flexDirection: "column",
-                textAlign: "center",
-              }}
-            >
-              <h1>{user && user.toUpperCase()} T-Ractor</h1>
-              <div style={{ flex: "1 0 auto" }}>
-                {messages &&
-                  messages.length > 0 &&
-                  messages.map((v, i) => (
-                    <p style={{ margin: "0", padding: "0" }} key={i}>
-                      {v.text}
-                    </p>
-                  ))}
-              </div>
-
-              <p>Press enter to create new poem</p>
+        <Modal isOpen={true}>
+          <div
+            style={{
+              minHeight: "100vh",
+              padding: "1em",
+              display: "flex",
+              flexDirection: "column",
+              justifyContent: "center",
+              alignItems: "center",
+            }}
+          >
+            <h2>{user && user.toUpperCase()} T-Ractor</h2>
+            <h5 style={{ fontStyle: "italic", fontWeight: "100" }}>
+              by {user}
+            </h5>
+            <div style={{ flex: "1 0 auto" }}>
+              {messages &&
+                messages.length > 0 &&
+                messages.map((v, i) => <p key={i}>{v.text}</p>)}
             </div>
-          </Modal>
-        </div>
+
+            <BlinkText>Press enter to start</BlinkText>
+          </div>
+        </Modal>
       </State>
     </Layout>
   )
@@ -322,6 +304,11 @@ const gameStateActions = props => ({
       const text = `${action.data}`
       const user = `${state.user} t.ractor`
 
+      if (text === "undefined")
+        return {
+          ...state,
+        }
+
       const message = {
         actor: "human",
         text,
@@ -344,7 +331,11 @@ const gameStateActions = props => ({
     //   return Promise.resolve({ ...state, ...props, messages: [], mood: null })
     // },
 
-    gameOver: async ({ id, messages }, action) => {
+    gameOver: async ({ messages }, action) => {
+      const id = String(Math.random())
+        .split(".")
+        .pop()
+      console.log(id)
       await savePoem({ id, messages })
       const text = messages.reduce((acc, msg) => msg.text + acc, "")
       const mood = await getEmotions({ text })
@@ -388,6 +379,8 @@ const gameStateActions = props => ({
   },
 })
 
+export default ChatPage
+
 const Wrap = styled.div`
   display: flex;
   flex-flow: column nowrap;
@@ -396,7 +389,61 @@ const Wrap = styled.div`
   max-height: 100vh;
 `
 
-export default ChatPage
+const blink = keyframes`
+  from { opacity: 0; }
+  to { opacity: 1; }
+`
+const BlinkText = styled.h5`
+  font-weight: 100;
+  text-transform: uppercase;
+  animation: ${blink} 0.6s ease-in infinite;
+`
+
+const State = ({ current, active, children }) =>
+  current === active ? children : null
+
+const Instructions = () => {
+  const [isDone, setDone] = useState(false)
+  return (
+    <Modal isOpen={true}>
+      <div
+        style={{
+          minHeight: "100vh",
+          padding: "1em",
+          display: "flex",
+          flexDirection: "column",
+          justifyContent: "center",
+          alignItems: "center",
+        }}
+      >
+        <Typist
+          cursor={{
+            show: false,
+            blink: true,
+            element: "|",
+            hideWhenDone: true,
+            hideWhenDoneDelay: 1000,
+          }}
+          onTypingDone={() => setDone(true)}
+        >
+          <p style={{ textAlign: "center" }}>👋</p>
+          <p style={{ textAlign: "center" }}>Hi, I’m T.Ractor. 🤖</p>
+          <p style={{ textAlign: "center" }}>Nice to meet you.</p>
+          <p style={{ textAlign: "center" }}>
+            Make together with me, line by line EveryDayLifePoetry.
+          </p>
+          <p style={{ textAlign: "center" }}>
+            We have 60 seconds per line and 15 lines in total for our poem. ⏳📝
+          </p>
+        </Typist>
+
+        {isDone && <BlinkText>Press enter to start</BlinkText>}
+        {/*
+    <p>By using our site you agree to the following terms of service.</p> */}
+      </div>
+    </Modal>
+  )
+}
 
 const CreatePoemForm = ({ onSubmit }) => {
   const inputRef = useRef(null)
@@ -433,6 +480,3 @@ const CreatePoemForm = ({ onSubmit }) => {
     </form>
   )
 }
-
-const State = ({ current, active, children }) =>
-  current === active ? children : null

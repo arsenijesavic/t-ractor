@@ -18,7 +18,8 @@ const defaultStyle = {
   },
 
   content: {
-    maxWidth: "960px",
+    // maxWidth: "960px",
+    width: "100%",
     position: "static",
     padding: "0",
     margin: "0",
