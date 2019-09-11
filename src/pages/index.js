@@ -70,6 +70,7 @@ const CreatePoemForm = ({ onSubmit }) => {
     </form>
   )
 }
+
 const Poems = ({ data }) => {
   const [selectedPoem, setSelectedPoem] = useState(null)
   const isModalOpen = selectedPoem !== null

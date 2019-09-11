@@ -1,5 +1,4 @@
 import { useEffect, useState } from "react"
-import { useDeepCompareEffect, useTween } from "react-use"
 import Pizzicato from "pizzicato"
 
 const Audio = ({ src, volume, loop, status }) => {
@@ -11,19 +10,33 @@ const Audio = ({ src, volume, loop, status }) => {
       source: "file",
       options: {
         path: src,
-        loop,
+        //loop,
         attack: 10,
         release: 10,
       },
     }
 
     const _sound = new Pizzicato.Sound(_config, () => {
+      // var highPassFilter = new Pizzicato.Effects.HighPassFilter({
+      //   frequency: 10000,
+      //   peak: 10,
+      // })
+
+      var reverb = new Pizzicato.Effects.Reverb({
+        time: 5,
+        decay: 0.01,
+        reverse: true,
+        mix: 0.5,
+      })
+      // _sound.addEffect(highPassFilter)
+      _sound.addEffect(reverb)
+
       setSound(_sound)
     })
   }, [src, volume, loop, status])
 
   //CHANGE STATUS BASED ON PROPS
-  useDeepCompareEffect(() => {
+  useEffect(() => {
     if (sound) {
       switch (status) {
         case "PLAYING":

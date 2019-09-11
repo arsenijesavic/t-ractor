@@ -1,36 +1,34 @@
 export default function sketch(p) {
-  if (typeof window === undefined) return null
-
-  function nextGaussian() {
-    return p.random(1) * 2 - 1 + (p.random(1) * 2 - 1) + (p.random(1) * 2 - 1)
-  }
-
+  // const DEBUG = true
+  // const DEBUG_INIT = true
+  // const DEBUG_LOGIC = true
   const POS_DEV = 45
   const R_DEV = 15
   const VELOCITY_DEV = 2.5
   const VELOCITY_MEAN = 1
   const TURNING_SPEED_DEV = 0.25
   const TURNING_SPEED_MEAN = 0.25
-  const COLOR_DEV = 40
+  // const COLOR_DEV = 40
   const fadeSpeed = 0.3
   const shrinkSpeed = 0.1
-
-  // const DEBUG = true
-  // const DEBUG_INIT = true
-  // const DEBUG_LOGIC = true
   let reset = false
   let splatters = []
+
+  function nextGaussian() {
+    return p.random(1) * 2 - 1 + (p.random(1) * 2 - 1) + (p.random(1) * 2 - 1)
+  }
 
   function Splatter(base, x, y, r) {
     this.x = nextGaussian() * POS_DEV + x
     this.y = nextGaussian() * POS_DEV + y
     this.r = nextGaussian() * R_DEV + r
-    this.c = p.color(
-      nextGaussian() * COLOR_DEV + p.red(base),
-      nextGaussian() * COLOR_DEV + p.green(base),
-      nextGaussian() * COLOR_DEV + p.blue(base),
-      nextGaussian() * COLOR_DEV + p.alpha(base),
-    )
+    // this.c = p.color(
+    //   nextGaussian() * COLOR_DEV + p.red(base),
+    //   nextGaussian() * COLOR_DEV + p.green(base),
+    //   nextGaussian() * COLOR_DEV + p.blue(base),
+    //   nextGaussian() * COLOR_DEV + p.alpha(base),
+    // )
+    this.c = base
     this.clearBackground = false
     this.finished = false
     this.direction = p.random(p.TWO_PI)
@@ -46,8 +44,10 @@ export default function sketch(p) {
         this.r -= shrinkSpeed
         a -= fadeSpeed
       }
+
       this.c = p.color(p.red(this.c), p.green(this.c), p.blue(this.c), a)
       if (this.a < 0) this.finished = true
+
       this.walk()
     }
 
@@ -73,14 +73,11 @@ export default function sketch(p) {
   }
 
   p.setup = function() {
-    // p.createCanvas(window.innerWidth, window.innerHeight)
     p.createCanvas(500, 500)
     p.pixelDensity(3)
     p.smooth()
     p.noCursor()
     p.background(0)
-    // baseColor = p.color(p.random(255), p.random(255), p.random(255), 125)
-    // baseColor = p.color(255, 0, 0, 125)
   }
 
   p.myCustomRedrawAccordingToNewPropsHandler = function(props) {
@@ -104,7 +101,7 @@ export default function sketch(p) {
             p.color(...emotionsMap[emotion.tone_id], 125),
             p.random(p.width),
             p.random(p.height),
-            p.map(emotion.score, 0, 1, 1, 20),
+            p.map(emotion.score, 0, 1, 5, 30),
           )
           if (props.isOver) s.loop = true
           splatters.push(s)
@@ -116,10 +113,11 @@ export default function sketch(p) {
   }
 
   p.draw = function() {
-    // if (this.clearBackground) p.background(0, 5)
     if (reset) {
+      console.log("REST")
       splatters = []
       p.background(0)
+      reset = false
     }
 
     for (let i = splatters.length - 1; i >= 0; i--) {

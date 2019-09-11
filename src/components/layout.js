@@ -15,7 +15,7 @@ const SITE_TITLE_QUERY = graphql`
   }
 `
 
-const Layout = ({ children, style, navigation }) => (
+const Layout = ({ children, style, navigation, ...props }) => (
   <StaticQuery
     query={SITE_TITLE_QUERY}
     render={data => (
@@ -32,7 +32,7 @@ const Layout = ({ children, style, navigation }) => (
 
         <GlobalStyle />
         {navigation && <Header siteTitle={data.site.siteMetadata.title} />}
-        <main>{children}</main>
+        <main {...props}>{children}</main>
       </>
     )}
   />

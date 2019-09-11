@@ -1,4 +1,4 @@
-import React from "react"
+import React, { useEffect, useRef } from "react"
 
 import { useMachine } from "@xstate/react"
 import { Machine, assign } from "xstate"
@@ -8,13 +8,13 @@ import getEmotions from "@utils/getEmotions"
 import * as ml5 from "@module/ml5"
 import { savePoem } from "@module/firebase"
 
-// import NewWindow from "react-new-window"
-// import P5Wrapper from "react-p5-wrapper"
-// import sketch from "@module/sketch"
+import NewWindow from "react-new-window"
+import P5Wrapper from "react-p5-wrapper"
+import sketch from "@module/sketch"
 
 import styled from "styled-components"
 import Layout from "@components/layout"
-import { Audio, Modal, Button } from "@components"
+import { Audio, Input, Modal } from "@components"
 import {
   Header,
   Messages,
@@ -22,7 +22,14 @@ import {
   TypingIndicator,
 } from "@components/pages/chat"
 
-const _sounds = [
+//CONSTANTS
+const DEBUG = false
+// const NOT_SSR = typeof window !== "undefined"
+const GAME_DURATION = 30 * 1000 // 30 seconds
+const TOTAL_NUMBER_OF_MESSAGE = 30
+/**/
+
+const sounds = [
   { name: "_", src: "tractor_organ_drone.mp3", volume: 1, loop: true },
   { name: "anger", src: "tractor_01_anger_weak.mp3", volume: 1 },
   { name: "fear", src: "tractor_03_fear_weak.mp3", volume: 1 },
@@ -32,20 +39,26 @@ const _sounds = [
   { name: "tentative", src: "tractor_13_tentative_weak.mp3", volume: 1 },
 ]
 
-//CONSTANTS
-const DEBUG = false
-// const NOT_SSR = typeof window !== "undefined"
-const GAME_DURATION = 30 * 1000 // 30 seconds
-
 const ChatPage = props => {
   const { state } = props.location && props.location
   const [current, transition] = useMachine(gameMachine, gameStateActions(state))
   const GAME_STATE = current.value
   const data = current.context
   const { messages, user } = data
+
+  const handleKeyDown = e => {
+    console.log("handleKeyDown")
+    // if (["INSTRUCTIONS"].includes(GAME_STATE)) {
+    transition("NEXT")
+  }
+
   const mood = data.mood
     ? data.mood
     : messages && messages.length > 0 && messages[messages.length - 1].mood
+
+  if (messages.length === TOTAL_NUMBER_OF_MESSAGE) {
+    transition("GAME_OVER")
+  }
 
   const soundsVolumeSelector = (data, mood) =>
     data.map(x => {
@@ -54,51 +67,71 @@ const ChatPage = props => {
       return {
         ...x,
         //volume: moodForEmotion ? moodForEmotion.score : x.name === "_" ? 1 : 0,
+        loop: GAME_STATE === "GAME_OVER" ? true : false,
         status: moodForEmotion
           ? "PLAYING"
           : x.name === "_"
           ? "PLAYING"
           : "STOPED",
-        // volume:1,
       }
     })
 
-  const soundsWithVolume = soundsVolumeSelector(_sounds, mood)
-
-  // if (!state && NOT_SSR) {
-  //   props.navigate("/")
-  //   return null
-  // }
+  const soundsWithVolume = soundsVolumeSelector(sounds, mood)
 
   if (DEBUG) {
-    console.log("GAME STATE:::", GAME_STATE)
-    console.log("MOOD:::", mood)
-    console.log("DATA:::", data)
+    console.log("GAME STATE ::::", GAME_STATE)
+    console.log("MOOD ::::", mood)
+    console.log("DATA ::::", data)
   }
 
   return (
     <Layout title="home" navigation={false}>
-      {/* <Sketch /> */}
-      <State current={GAME_STATE} active="READY">
-        <Modal isOpen={true}>
-          <div style={{ background: "white", padding: "2em" }}>
-            <div onKeyDown={data => transition("NEXT")}>
-              <p>The Game is played in a series of rounds.</p>
-              <p> During each round, players can do x, y or z.</p>
+      <State current={GAME_STATE} active="INSTRUCTIONS">
+        <div onKeyDown={handleKeyDown}>
+          <Modal isOpen={true}>
+            <div
+              style={{
+                minHeight: "100vh",
+                padding: "1em",
+                display: "flex",
+                flexDirection: "column",
+                justifyContent: "center",
+                alignItems: "center",
+              }}
+            >
+              <p>Hi, I am T.Ractor.</p>
+              <p>
+                You can make EveryDayLIfePoetry by interacting with me – line by
+                line
+              </p>
+              <p>
+                We have 60 seconds per line and maximum 30 lines for our poem.{" "}
+              </p>
+              <p>You can start now! </p>
+              <p>
+                By using our site you agree to the following terms of service
+              </p>
+              <h6>Press enter to start game</h6>
             </div>
-            <Button onClick={data => transition("NEXT")}>START GAME</Button>
-          </div>
+          </Modal>
+        </div>
+      </State>
+
+      <State current={GAME_STATE} active="GAME_INIT">
+        <Modal isOpen={true}>
+          <CreatePoemForm onSubmit={data => transition("NEXT", { data })} />
         </Modal>
       </State>
-          
+
       <>
+        {/* MAIN WINDOW */}
         <Wrap>
           <Header
             count={messages.length}
             duration={GAME_DURATION}
             active={GAME_STATE === "HUMAN"}
             reset={GAME_STATE === "HUMAN"}
-            // onTimeExpire={() => transition("GAME_OVER")}
+            onTimeExpire={() => transition("GAME_OVER")}
           />
           <Messages data={messages} />
           <TypingIndicator isTyping={GAME_STATE === "BOT"} />
@@ -109,7 +142,6 @@ const ChatPage = props => {
           />
         </Wrap>
 
-        {/*
         <NewWindow title="viz">
           <P5Wrapper
             isOver={GAME_STATE === "GAME_OVER"}
@@ -117,7 +149,7 @@ const ChatPage = props => {
             mood={mood && mood}
             sketch={sketch}
           />
-        </NewWindow> */}
+        </NewWindow>
 
         {soundsWithVolume.map((sound, i) => (
           <Audio
@@ -129,83 +161,83 @@ const ChatPage = props => {
           />
         ))}
       </>
+
+      {/* GAME OVER MODAL */}
       <State current={GAME_STATE} active="GAME_OVER">
-        <Modal isOpen={true}>
-          <div
-            style={{
-              height: "100vh",
-              padding: "2em",
-              display: "flex",
-              flexDirection: "column",
-            }}
-          >
-            <h1>{user && user.toUpperCase()} T-Ractor</h1>
-            <div style={{ flex: "1 0 auto" }}>
-              {messages &&
-                messages.length > 0 &&
-                messages.map((v, i) => <p key={i}>{v.text}</p>)}
+        <div onKeyDown={handleKeyDown}>
+          <Modal isOpen={true}>
+            <div
+              style={{
+                minHeight: "100vh",
+                padding: "1em",
+                display: "flex",
+                flexDirection: "column",
+                textAlign: "center",
+              }}
+            >
+              <h1>{user && user.toUpperCase()} T-Ractor</h1>
+              <div style={{ flex: "1 0 auto" }}>
+                {messages &&
+                  messages.length > 0 &&
+                  messages.map((v, i) => (
+                    <p style={{ margin: "0", padding: "0" }} key={i}>
+                      {v.text}
+                    </p>
+                  ))}
+              </div>
+
+              <p>Press enter to create new poem</p>
             </div>
-            <Button onClick={data => transition("START_GAME")}>
-              Create new poem
-            </Button>
-          </div>
-        </Modal>
+          </Modal>
+        </div>
       </State>
     </Layout>
   )
 }
 
+const mergeState = assign((state, action) => ({
+  ...state,
+  ...action.data,
+}))
+
 const gameMachine = Machine({
   id: "game",
   initial: "LOADING",
+
   context: {
-    id: String(Math.random())
-      .split(".")
-      .pop(),
+    mood: null,
     messages: [],
   },
+
   states: {
     LOADING: {
       invoke: {
         src: "loadAssets",
         onDone: {
-          target: "READY",
-          actions: assign((state, action) => ({
-            ...state,
-            ...action.data,
-          })),
+          target: "INSTRUCTIONS",
+          actions: mergeState,
         },
-
-        onError: {
-          target: "LOADING",
-          // actions: assign({
-          //   error: (_, event) => event.data,
-          // }),
-        },
+        onError: {},
       },
     },
 
-    READY: {
+    INSTRUCTIONS: {
       on: { NEXT: "GAME_INIT" },
     },
 
     GAME_INIT: {
-      invoke: {
-        src: "initGame",
-        onDone: {
-          target: "HUMAN",
-          actions: assign((state, action) => ({
-            ...state,
-            ...action.data,
-          })),
-        },
-        // onError: {
-        //   target: "BOT",
-        //   actions: assign({
-        //     error: (_, event) => event.data,
-        //   }),
-        // },
+      exit: "initGame",
+      on: {
+        NEXT: "HUMAN",
       },
+      // invoke: {
+      //   src: "initGame",
+      //   onDone: {
+      //     //target: "HUMAN",
+      //     actions: mergeState,
+      //   },
+      //   onError: {},
+      // },
     },
 
     HUMAN: {
@@ -218,7 +250,7 @@ const gameMachine = Machine({
 
     GAME_OVER: {
       on: {
-        START_GAME: "GAME_INIT",
+        NEXT: "INSTRUCTIONS",
       },
 
       invoke: {
@@ -281,6 +313,11 @@ const gameMachine = Machine({
 
 const gameStateActions = props => ({
   actions: {
+    initGame: assign((state, action) => {
+      const { user } = action.data
+      return { ...state, ...props, user, messages: [], mood: null }
+    }),
+
     createMessage: assign((state, action) => {
       const text = `${action.data}`
       const user = `${state.user} t.ractor`
@@ -295,8 +332,6 @@ const gameStateActions = props => ({
         messages: [...state.messages, message],
       }
     }),
-
-    createAnswer: () => {},
   },
 
   services: {
@@ -305,9 +340,9 @@ const gameStateActions = props => ({
       return Promise.resolve({ ...state, lstm })
     },
 
-    initGame: async (state, action) => {
-      return Promise.resolve({ ...state, ...props, messages: [], mood: null })
-    },
+    // initGame: async (state, action) => {
+    //   return Promise.resolve({ ...state, ...props, messages: [], mood: null })
+    // },
 
     gameOver: async ({ id, messages }, action) => {
       await savePoem({ id, messages })
@@ -335,7 +370,7 @@ const gameStateActions = props => ({
       const result = await lstm.generate({
         seed,
         length: 100,
-        temperature: 0.3,
+        temperature: 0.5,
       })
 
       const index = result.sample.lastIndexOf(".")
@@ -363,68 +398,41 @@ const Wrap = styled.div`
 
 export default ChatPage
 
+const CreatePoemForm = ({ onSubmit }) => {
+  const inputRef = useRef(null)
+
+  useEffect(() => {
+    inputRef.current.focus()
+  }, [inputRef])
+
+  const handleSubmit = e => {
+    e.preventDefault()
+    if (inputRef.current.value !== "") {
+      onSubmit({
+        user: inputRef.current.value,
+      })
+    }
+  }
+
+  return (
+    <form
+      style={{
+        minHeight: "100vh",
+        padding: "1em",
+        display: "flex",
+        flexDirection: "column",
+        justifyContent: "center",
+        alignItems: "center",
+      }}
+      onSubmit={handleSubmit}
+    >
+      <label style={{ textAlign: "center" }} htmlFor="user">
+        Type your name and press enter to start
+      </label>
+      <Input ref={inputRef} name="user" style={{ textAlign: "center" }} />
+    </form>
+  )
+}
+
 const State = ({ current, active, children }) =>
   current === active ? children : null
-
-// import React, { useRef, useEffect, useState } from "react"
-// const Sketch = () => {
-//   const canvasRef = useRef()
-//   const [points, setPoint] = useState([])
-//   useEffect(draw, [points])
-
-//   function onMouseClick(e) {
-//     const canvas = canvasRef.current
-//     const rect = canvas.getBoundingClientRect()
-//     const pos = {
-//       x: e.clientX - rect.left,
-//       y: e.clientY - rect.top,
-//     }
-
-//     setPoint([...points, pos])
-//   }
-
-//   function draw() {
-//     console.log(points)
-//     const canvas = canvasRef.current
-//     const ctx = canvasRef.current.getContext("2d")
-//     // ctx.clearRect(0, 0, canvas.width, canvas.height)
-//     // ctx.globalCompositeOperation = "source-over"
-
-//     // ctx.arc(50, 50, 50, 0, Math.PI * 2)
-//     // ctx.arc(140, 50, 50, 0, Math.PI * 2)
-//     //points.map(p => ctx.lineTo(p.x, p.y))
-//     points.forEach(p => {
-//       ctx.beginPath()
-//       // ctx.moveTo(0, 0)
-//       // ctx.lineTo(p.x, p.y)
-//       ctx.arc(p.x, p.y, 100, 0, Math.PI * 2)
-//       ctx.closePath()
-//     })
-//     // ctx.clip()
-//     ctx.stroke()
-
-//     // ctx.fillStyle = "red"
-//     // ctx.fillRect(0, 0, canvas.width, canvas.height)
-
-//     // ctx.beginPath()
-//     // ctx.rect(0, 0, canvas.width, canvas.height)
-
-//     // ctx.restore()
-
-//     // points.forEach(p => {
-//     //   ctx.save()
-//     //   ctx.beginPath()
-//     //   ctx.arc(p.x, p.y, 100, 0, Math.PI * 2)
-//     //   ctx.clip()
-//     //   // ctx.strokeStyle = "black"
-//     //   // ctx.stroke()
-//     //   ctx.restore()
-//     // })
-
-//     //SKETCH GOES HERE
-//   }
-
-//   return (
-//     <canvas ref={canvasRef} width={500} height={500} onClick={onMouseClick} />
-//   )
-// }
